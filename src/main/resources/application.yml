@@ -1,0 +1,61 @@
+spring:
+  application:
+    name: warehouse-operations-service
+
+  # MongoDB Configuration
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/warehouse}
+      database: warehouse
+
+  # Kafka Configuration
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: warehouse-operations-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.paklog.warehouse: DEBUG
+    org.springframework.kafka: WARN
+    org.mongodb.driver: WARN
+
+# Application-specific Configuration
+warehouse:
+  picking:
+    route-optimization:
+      enabled: true
+      strategy: continuous
+  packing:
+    validation:
+      strict-mode: true
+
+# CloudEvents Configuration
+cloudevents:
+  kafka:
+    topic: warehouse-events
+    source: /fulfillment/warehouse-operations-service
+
+# Actuator Endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 
+          - health
+          - info
+          - metrics
+          - prometheus
+  health:
+    mongo:
+      enabled: true
+    kafka:
+      enabled: true

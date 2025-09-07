@@ -1,0 +1,162 @@
+asyncapi: 2.6.0
+info:
+  title: Warehouse Operations Event Streaming
+  version: 1.0.0
+  description: AsyncAPI specification for warehouse operations event streaming
+  contact:
+    name: Paklog Warehouse Operations Team
+    email: warehouse-ops@paklog.com
+
+servers:
+  production:
+    url: kafka.paklog.com:9092
+    protocol: kafka
+    description: Production Kafka broker for warehouse events
+
+channels:
+  warehouse-events:
+    description: Primary channel for warehouse operations domain events
+    publish:
+      summary: Events published by Warehouse Operations Service
+      operationId: publishWarehouseEvent
+      message:
+        $ref: '#/components/messages/WarehouseEvent'
+
+  package-events:
+    description: Events related to package creation and shipping
+    publish:
+      summary: Package lifecycle events
+      operationId: publishPackageEvent
+      message:
+        $ref: '#/components/messages/PackageEvent'
+
+  pick-list-events:
+    description: Events related to pick list creation and processing
+    publish:
+      summary: Pick list lifecycle events
+      operationId: publishPickListEvent
+      message:
+        $ref: '#/components/messages/PickListEvent'
+
+components:
+  messages:
+    WarehouseEvent:
+      name: WarehouseEvent
+      title: Generic Warehouse Event
+      contentType: application/cloudevents+json
+      payload:
+        $ref: '#/components/schemas/CloudEvent'
+
+    PackageEvent:
+      name: PackageEvent
+      title: Package Lifecycle Event
+      contentType: application/cloudevents+json
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/CloudEvent'
+          - type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/PackageEventData'
+
+    PickListEvent:
+      name: PickListEvent
+      title: Pick List Lifecycle Event
+      contentType: application/cloudevents+json
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/CloudEvent'
+          - type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/PickListEventData'
+
+  schemas:
+    CloudEvent:
+      type: object
+      required:
+        - specversion
+        - id
+        - source
+        - type
+        - time
+      properties:
+        specversion:
+          type: string
+          enum: ['1.0']
+        id:
+          type: string
+          description: Unique event identifier
+        source:
+          type: string
+          description: Event source URI
+        type:
+          type: string
+          description: Event type
+        time:
+          type: string
+          format: date-time
+        datacontenttype:
+          type: string
+        data:
+          type: object
+
+    PackageEventData:
+      type: object
+      required:
+        - packageId
+        - orderId
+        - status
+      properties:
+        packageId:
+          type: string
+        orderId:
+          type: string
+        status:
+          type: string
+          enum:
+            - CREATED
+            - PACKED
+            - CONFIRMED
+            - SHIPPED
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              skuCode:
+                type: string
+              quantity:
+                type: integer
+
+    PickListEventData:
+      type: object
+      required:
+        - pickListId
+        - orderId
+        - status
+      properties:
+        pickListId:
+          type: string
+        orderId:
+          type: string
+        status:
+          type: string
+          enum:
+            - CREATED
+            - ASSIGNED
+            - IN_PROGRESS
+            - COMPLETED
+        picker:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              skuCode:
+                type: string
+              quantity:
+                type: integer
+              binLocation:
+                type: string

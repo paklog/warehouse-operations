@@ -1,0 +1,83 @@
+spring:
+  # Enhanced MongoDB Configuration
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+      options:
+        min-connections-per-host: 10
+        max-connections-per-host: 100
+        connect-timeout: 2000
+        socket-timeout: 3000
+        max-wait-time: 5000
+
+  # Kafka Performance Tuning
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    producer:
+      batch-size: 16384
+      linger-ms: 5
+      buffer-memory: 33554432
+      compression-type: snappy
+    consumer:
+      fetch-min-bytes: 1024
+      fetch-max-wait-ms: 100
+      max-poll-records: 500
+
+# Actuator Production Settings
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  health:
+    defaults:
+      enabled: true
+    diskspace:
+      enabled: true
+    mongo:
+      enabled: true
+    kafka:
+      enabled: true
+
+# Logging Configuration
+logging:
+  level:
+    root: WARN
+    com.paklog.warehouse: INFO
+    org.springframework.kafka: WARN
+    org.mongodb.driver: WARN
+  file:
+    name: /var/log/warehouse-operations/application.log
+    max-size: 10MB
+    max-history: 10
+
+# Performance Optimization
+warehouse:
+  performance:
+    route-optimization:
+      cache-enabled: true
+      cache-size: 1000
+      cache-ttl-minutes: 60
+    event-processing:
+      max-concurrent-events: 10
+      retry-max-attempts: 3
+      retry-backoff-ms: 100
+
+# Circuit Breaker Configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      mongoCircuitBreaker:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10000
+      kafkaCircuitBreaker:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10000
+
+# Distributed Tracing
+opentelemetry:
+  traces:
+    sampler: 
+      probability: 0.1
