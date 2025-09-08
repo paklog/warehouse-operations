@@ -1,0 +1,485 @@
+{
+  "info": {
+    "name": "Warehouse Operations API",
+    "description": "API collection for testing Paklog Warehouse Operations microservice",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "warehouse-ops-api-v1"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "description": "Base URL for the warehouse operations service"
+    },
+    {
+      "key": "pickListId",
+      "value": "",
+      "description": "Pick List ID for testing"
+    },
+    {
+      "key": "packageId",
+      "value": "",
+      "description": "Package ID for testing"
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "description": "Order ID for testing"
+    },
+    {
+      "key": "pickerId",
+      "value": "picker-001",
+      "description": "Default picker ID for testing"
+    }
+  ],
+  "item": [
+    {
+      "name": "Pick List Operations",
+      "item": [
+        {
+          "name": "Get Pick List by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/picklists/{{pickListId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "picklists", "{{pickListId}}"]
+            },
+            "description": "Retrieve a specific pick list by its ID"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"orderId\": \"ord-12345\",\n  \"status\": \"PENDING\",\n  \"pickerId\": \"picker-001\",\n  \"instructions\": [\n    {\n      \"skuCode\": \"SKU-001\",\n      \"quantity\": 2,\n      \"binLocation\": \"A-01-05\",\n      \"status\": \"PENDING\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Pick Lists by Picker",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/picklists/picker/{{pickerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "picklists", "picker", "{{pickerId}}"]
+            },
+            "description": "Get all pick lists assigned to a specific picker"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"orderId\": \"ord-12345\",\n    \"status\": \"IN_PROGRESS\",\n    \"pickerId\": \"picker-001\",\n    \"instructions\": []\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Get Pick Lists by Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/picklists/status/PENDING",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "picklists", "status", "PENDING"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "PENDING",
+                  "description": "Available statuses: PENDING, IN_PROGRESS, COMPLETED, CANCELLED",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get all pick lists with a specific status. Available statuses: PENDING, IN_PROGRESS, COMPLETED, CANCELLED"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"orderId\": \"ord-12345\",\n    \"status\": \"PENDING\",\n    \"pickerId\": null,\n    \"instructions\": []\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Get Next Pick List for Picker",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/picklists/picker/{{pickerId}}/next",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "picklists", "picker", "{{pickerId}}", "next"]
+            },
+            "description": "Get the next available pick list for a picker"
+          },
+          "response": [
+            {
+              "name": "Pick List Found",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"orderId\": \"ord-12345\",\n  \"status\": \"PENDING\",\n  \"pickerId\": \"picker-001\",\n  \"instructions\": []\n}"
+            },
+            {
+              "name": "No Pick List Available",
+              "status": "No Content",
+              "code": 204,
+              "body": ""
+            }
+          ]
+        },
+        {
+          "name": "Confirm Item Pick",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"skuCode\": \"SKU-001\",\n  \"quantity\": 2,\n  \"binLocation\": \"A-01-05\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/picklists/{{pickListId}}/confirm-pick",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "picklists", "{{pickListId}}", "confirm-pick"]
+            },
+            "description": "Confirm that an item has been picked from the specified bin location"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "OK",
+              "code": 200,
+              "body": ""
+            },
+            {
+              "name": "Validation Error",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"timestamp\": \"2024-01-01T12:00:00.000+00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"SKU code is required\",\n  \"path\": \"/api/picklists/123/confirm-pick\"\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Operations related to pick list management"
+    },
+    {
+      "name": "Package Operations",
+      "item": [
+        {
+          "name": "Create Package",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderType\": \"STANDARD\",\n  \"street\": \"123 Main Street\",\n  \"city\": \"Springfield\",\n  \"state\": \"IL\",\n  \"postalCode\": \"62701\",\n  \"country\": \"USA\",\n  \"items\": [\n    {\n      \"skuCode\": \"SKU-001\",\n      \"quantity\": 2\n    },\n    {\n      \"skuCode\": \"SKU-002\",\n      \"quantity\": 1\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/packages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "packages"]
+            },
+            "description": "Create a new package from a fulfillment order"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"packageId\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"orderId\": \"ord-12345\",\n  \"orderType\": \"STANDARD\",\n  \"status\": \"PENDING\",\n  \"items\": [\n    {\n      \"skuCode\": \"SKU-001\",\n      \"quantity\": 2\n    },\n    {\n      \"skuCode\": \"SKU-002\",\n      \"quantity\": 1\n    }\n  ]\n}"
+            },
+            {
+              "name": "Validation Error",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"timestamp\": \"2024-01-01T12:00:00.000+00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"Order type is required\",\n  \"path\": \"/api/packages\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Package by Order ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/packages/order/{{orderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "packages", "order", "{{orderId}}"]
+            },
+            "description": "Retrieve a package by its associated order ID"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"packageId\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"orderId\": \"ord-12345\",\n  \"orderType\": \"STANDARD\",\n  \"status\": \"PENDING\",\n  \"items\": [\n    {\n      \"skuCode\": \"SKU-001\",\n      \"quantity\": 2\n    }\n  ]\n}"
+            },
+            {
+              "name": "Package Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "body": ""
+            }
+          ]
+        },
+        {
+          "name": "Confirm Package",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/packages/{{packageId}}/confirm",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "packages", "{{packageId}}", "confirm"]
+            },
+            "description": "Confirm a package is ready for shipment"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"packageId\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"orderId\": \"ord-12345\",\n  \"orderType\": \"STANDARD\",\n  \"status\": \"CONFIRMED\",\n  \"items\": [\n    {\n      \"skuCode\": \"SKU-001\",\n      \"quantity\": 2\n    }\n  ]\n}"
+            },
+            {
+              "name": "Package Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "body": ""
+            }
+          ]
+        }
+      ],
+      "description": "Operations related to package management"
+    },
+    {
+      "name": "Health & Monitoring",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["actuator", "health"]
+            },
+            "description": "Check the health status of the service"
+          },
+          "response": [
+            {
+              "name": "Healthy Service",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": \"UP\",\n  \"components\": {\n    \"mongo\": {\n      \"status\": \"UP\"\n    },\n    \"kafka\": {\n      \"status\": \"UP\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Application Info",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/actuator/info",
+              "host": ["{{baseUrl}}"],
+              "path": ["actuator", "info"]
+            },
+            "description": "Get application information"
+          },
+          "response": [
+            {
+              "name": "Application Info",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"app\": {\n    \"name\": \"warehouse-operations-service\",\n    \"description\": \"Paklog Warehouse Operations Service\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Metrics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/actuator/metrics",
+              "host": ["{{baseUrl}}"],
+              "path": ["actuator", "metrics"]
+            },
+            "description": "Get application metrics"
+          },
+          "response": [
+            {
+              "name": "Metrics List",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"names\": [\n    \"jvm.memory.used\",\n    \"jvm.memory.committed\",\n    \"http.server.requests\"\n  ]\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Health checks and monitoring endpoints"
+    },
+    {
+      "name": "Test Data Setup",
+      "item": [
+        {
+          "name": "Create Test Pick List",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// This is a placeholder - in a real scenario, you would need to create pick lists",
+                  "// through the domain service or via separate admin endpoints",
+                  "pm.test(\"Set test pick list ID\", function () {",
+                  "    // Set a test pick list ID for other requests",
+                  "    pm.collectionVariables.set(\"pickListId\", \"test-picklist-001\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["actuator", "health"]
+            },
+            "description": "Setup test data variables - this is a placeholder request"
+          }
+        },
+        {
+          "name": "Set Test Variables",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Set up test variables",
+                  "pm.collectionVariables.set(\"pickListId\", \"123e4567-e89b-12d3-a456-426614174000\");",
+                  "pm.collectionVariables.set(\"packageId\", \"987e6543-e21b-34c5-a654-123456789000\");",
+                  "pm.collectionVariables.set(\"orderId\", \"ord-\" + Date.now());",
+                  "",
+                  "pm.test(\"Test variables set\", function () {",
+                  "    pm.expect(pm.collectionVariables.get(\"pickListId\")).to.not.be.empty;",
+                  "    pm.expect(pm.collectionVariables.get(\"packageId\")).to.not.be.empty;",
+                  "    pm.expect(pm.collectionVariables.get(\"orderId\")).to.not.be.empty;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["actuator", "health"]
+            },
+            "description": "Initialize test variables for the collection"
+          }
+        }
+      ],
+      "description": "Helper requests to set up test data and variables"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global pre-request script - runs before each request",
+          "console.log('Making request to: ' + pm.request.url);"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test script - runs after each request",
+          "pm.test('Response time is reasonable', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "pm.test('Response has proper content type', function () {",
+          "    if (pm.response.code !== 204) {",
+          "        pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+          "    }",
+          "});"
+        ]
+      }
+    }
+  ]
+}

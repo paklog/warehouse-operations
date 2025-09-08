@@ -1,0 +1,27 @@
+spring:
+  data:
+    mongodb:
+      # Use embedded MongoDB or testcontainers for testing
+      # This will use the default embedded MongoDB configuration
+      auto-index-creation: true
+  
+  # Disable MongoDB transaction support for simpler tests
+  mongodb:
+    embedded:
+      enabled: true
+    
+  # Application specific test properties
+  application:
+    name: warehouse-operations-test
+    
+  # Logging configuration for tests
+  logging:
+    level:
+      com.paklog.warehouse: DEBUG
+      org.springframework.data.mongodb: DEBUG
+      root: INFO
+
+# Test specific configuration
+test:
+  cleanup:
+    enabled: true
