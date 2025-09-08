@@ -1,0 +1,37 @@
+{
+  "name": "warehouse-operations-k6-tests",
+  "version": "1.0.0",
+  "description": "K6 load testing scripts for Warehouse Operations APIs",
+  "scripts": {
+    "setup": "npm run install-k6",
+    "install-k6": "curl https://github.com/grafana/k6/releases/download/v0.47.0/k6-v0.47.0-macos-amd64.tar.gz -L | tar xvz --strip-components 1 -C ./bin",
+    "test:smoke": "k6 run scripts/smoke-test.js",
+    "test:load": "k6 run scripts/load-test.js",
+    "test:stress": "k6 run scripts/stress-test.js",
+    "test:spike": "k6 run scripts/spike-test.js",
+    "test:picklist": "k6 run scripts/picklist-load-test.js",
+    "test:package": "k6 run scripts/package-load-test.js",
+    "test:all": "npm run test:smoke && npm run test:load && npm run test:stress",
+    "clean": "rm -rf reports/*.json reports/*.html",
+    "report:html": "k6 run --out json=reports/results.json scripts/load-test.js && node scripts/generate-html-report.js"
+  },
+  "keywords": [
+    "k6",
+    "load-testing",
+    "performance",
+    "warehouse",
+    "api-testing"
+  ],
+  "author": "Paklog Team",
+  "license": "MIT",
+  "devDependencies": {
+    "k6": "^0.47.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "volta": {
+    "node": "18.17.0",
+    "npm": "9.6.7"
+  }
+}

@@ -1,0 +1,341 @@
+{
+  "environments": {
+    "local": {
+      "baseUrl": "http://localhost:8080"
+    },
+    "staging": {
+      "baseUrl": "https://warehouse-operations-staging.paklog.com"
+    }
+  },
+  "testUsers": {
+    "pickers": [
+      {
+        "id": "picker-001",
+        "name": "John Smith",
+        "shift": "morning",
+        "efficiency": "high"
+      },
+      {
+        "id": "picker-002",
+        "name": "Jane Doe", 
+        "shift": "afternoon",
+        "efficiency": "medium"
+      },
+      {
+        "id": "picker-003",
+        "name": "Mike Johnson",
+        "shift": "night",
+        "efficiency": "high"
+      },
+      {
+        "id": "picker-004",
+        "name": "Sarah Wilson",
+        "shift": "morning",
+        "efficiency": "medium"
+      },
+      {
+        "id": "picker-005",
+        "name": "Tom Brown",
+        "shift": "afternoon",
+        "efficiency": "low"
+      }
+    ]
+  },
+  "warehouse": {
+    "skuCodes": [
+      {
+        "code": "WH-ELEC-001",
+        "description": "Wireless Headphones",
+        "category": "Electronics",
+        "weight": 250,
+        "dimensions": "20x15x8"
+      },
+      {
+        "code": "WH-BOOK-002",
+        "description": "Programming Manual",
+        "category": "Books",
+        "weight": 800,
+        "dimensions": "25x20x3"
+      },
+      {
+        "code": "WH-CLOTH-003",
+        "description": "Cotton T-Shirt",
+        "category": "Clothing",
+        "weight": 150,
+        "dimensions": "30x25x2"
+      },
+      {
+        "code": "WH-HOME-004",
+        "description": "Coffee Mug Set",
+        "category": "Home & Garden",
+        "weight": 600,
+        "dimensions": "15x15x12"
+      },
+      {
+        "code": "WH-SPORT-005",
+        "description": "Yoga Mat",
+        "category": "Sports",
+        "weight": 900,
+        "dimensions": "180x60x1"
+      },
+      {
+        "code": "WH-TECH-006",
+        "description": "USB Cable",
+        "category": "Technology",
+        "weight": 50,
+        "dimensions": "100x5x1"
+      },
+      {
+        "code": "WH-FOOD-007",
+        "description": "Organic Snack Box",
+        "category": "Food",
+        "weight": 400,
+        "dimensions": "20x15x10"
+      },
+      {
+        "code": "WH-TOY-008",
+        "description": "Building Blocks Set",
+        "category": "Toys",
+        "weight": 300,
+        "dimensions": "25x25x15"
+      }
+    ],
+    "binLocations": [
+      {
+        "location": "A-01-01",
+        "zone": "A",
+        "row": 1,
+        "shelf": 1,
+        "capacity": 100,
+        "currentLoad": 75
+      },
+      {
+        "location": "A-01-02",
+        "zone": "A",
+        "row": 1,
+        "shelf": 2,
+        "capacity": 100,
+        "currentLoad": 60
+      },
+      {
+        "location": "B-02-01",
+        "zone": "B",
+        "row": 2,
+        "shelf": 1,
+        "capacity": 150,
+        "currentLoad": 90
+      },
+      {
+        "location": "B-02-02",
+        "zone": "B",
+        "row": 2,
+        "shelf": 2,
+        "capacity": 150,
+        "currentLoad": 45
+      },
+      {
+        "location": "C-03-01",
+        "zone": "C",
+        "row": 3,
+        "shelf": 1,
+        "capacity": 200,
+        "currentLoad": 120
+      },
+      {
+        "location": "C-03-02",
+        "zone": "C",
+        "row": 3,
+        "shelf": 2,
+        "capacity": 200,
+        "currentLoad": 85
+      },
+      {
+        "location": "D-01-01",
+        "zone": "D",
+        "row": 1,
+        "shelf": 1,
+        "capacity": 75,
+        "currentLoad": 55
+      },
+      {
+        "location": "E-02-01",
+        "zone": "E",
+        "row": 2,
+        "shelf": 1,
+        "capacity": 125,
+        "currentLoad": 95
+      }
+    ],
+    "zones": [
+      {
+        "code": "A",
+        "name": "Electronics Zone",
+        "type": "climate_controlled"
+      },
+      {
+        "code": "B",
+        "name": "Books & Media",
+        "type": "standard"
+      },
+      {
+        "code": "C",
+        "name": "Clothing & Textiles",
+        "type": "standard"
+      },
+      {
+        "code": "D",
+        "name": "Home & Garden",
+        "type": "standard"
+      },
+      {
+        "code": "E",
+        "name": "Sports & Outdoors",
+        "type": "standard"
+      }
+    ]
+  },
+  "orderPatterns": {
+    "orderTypes": [
+      {
+        "type": "STANDARD",
+        "priority": 1,
+        "expectedProcessingTime": "24h",
+        "weight": 70
+      },
+      {
+        "type": "PRIORITY",
+        "priority": 2,
+        "expectedProcessingTime": "4h",
+        "weight": 20
+      },
+      {
+        "type": "EXPRESS",
+        "priority": 3,
+        "expectedProcessingTime": "1h",
+        "weight": 10
+      }
+    ],
+    "commonQuantities": [1, 2, 3, 5, 10],
+    "seasonalPatterns": {
+      "holiday_rush": {
+        "multiplier": 3.0,
+        "duration": "december"
+      },
+      "back_to_school": {
+        "multiplier": 2.0,
+        "duration": "august"
+      },
+      "summer_sale": {
+        "multiplier": 1.5,
+        "duration": "june-july"
+      }
+    }
+  },
+  "addresses": {
+    "sampleAddresses": [
+      {
+        "street": "123 Main Street",
+        "city": "New York",
+        "state": "NY",
+        "postalCode": "10001",
+        "country": "USA",
+        "type": "urban"
+      },
+      {
+        "street": "456 Oak Avenue",
+        "city": "Los Angeles", 
+        "state": "CA",
+        "postalCode": "90210",
+        "country": "USA",
+        "type": "suburban"
+      },
+      {
+        "street": "789 Pine Road",
+        "city": "Chicago",
+        "state": "IL",
+        "postalCode": "60601",
+        "country": "USA",
+        "type": "urban"
+      },
+      {
+        "street": "321 Elm Street",
+        "city": "Houston",
+        "state": "TX",
+        "postalCode": "77001",
+        "country": "USA",
+        "type": "suburban"
+      },
+      {
+        "street": "654 Maple Lane",
+        "city": "Phoenix",
+        "state": "AZ",
+        "postalCode": "85001",
+        "country": "USA",
+        "type": "suburban"
+      },
+      {
+        "street": "987 Cedar Court",
+        "city": "Philadelphia",
+        "state": "PA",
+        "postalCode": "19101",
+        "country": "USA",
+        "type": "urban"
+      }
+    ]
+  },
+  "performanceBaselines": {
+    "responseTime": {
+      "health": 200,
+      "packageCreation": 1500,
+      "pickListQuery": 800,
+      "pickConfirmation": 1200
+    },
+    "throughput": {
+      "packagesPerHour": 120,
+      "picksPerHour": 300,
+      "concurrentUsers": 25
+    },
+    "errorRates": {
+      "acceptable": 0.01,
+      "warning": 0.05,
+      "critical": 0.10
+    }
+  },
+  "testScenarios": {
+    "peakHours": {
+      "description": "Simulate peak warehouse operations",
+      "timeRange": "09:00-11:00, 14:00-16:00",
+      "loadMultiplier": 2.5
+    },
+    "nightShift": {
+      "description": "Simulate reduced night operations", 
+      "timeRange": "22:00-06:00",
+      "loadMultiplier": 0.3
+    },
+    "holidayRush": {
+      "description": "Simulate holiday season load",
+      "timeRange": "all_day",
+      "loadMultiplier": 4.0
+    },
+    "systemMaintenance": {
+      "description": "Simulate load during maintenance windows",
+      "timeRange": "02:00-04:00",
+      "loadMultiplier": 0.1
+    }
+  },
+  "validationRules": {
+    "packageValidation": {
+      "maxItemsPerPackage": 50,
+      "maxWeightKg": 22,
+      "requiredFields": ["orderType", "items", "shippingAddress"]
+    },
+    "pickListValidation": {
+      "maxPicksPerList": 25,
+      "requiredFields": ["orderId", "pickerId", "instructions"]
+    },
+    "pickConfirmation": {
+      "requiredFields": ["skuCode", "quantity", "binLocation"],
+      "maxQuantityDeviation": 0.1
+    }
+  }
+}

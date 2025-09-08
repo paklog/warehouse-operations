@@ -4,7 +4,8 @@
       "Bash(find:*)",
       "Bash(mvn clean:*)",
       "Bash(mvn:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(chmod:*)"
     ],
     "deny": [],
     "ask": []
