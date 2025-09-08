@@ -4,5 +4,6 @@ public enum PickListStatus {
     PENDING,
     ASSIGNED,
     IN_PROGRESS,
-    COMPLETED
+    COMPLETED,
+    CANCELLED
 }

@@ -1,8 +1,8 @@
 package com.paklog.warehouse.domain.picklist;
 
 import com.paklog.warehouse.domain.shared.BinLocation;
-import com.paklog.warehouse.domain.shared.PickList;
-import com.paklog.warehouse.domain.shared.PickListId;
+import com.paklog.warehouse.domain.picklist.PickList;
+import com.paklog.warehouse.domain.picklist.PickListId;
 import com.paklog.warehouse.domain.shared.Quantity;
 import com.paklog.warehouse.domain.shared.SkuCode;
 import org.junit.jupiter.api.BeforeEach;

@@ -2,11 +2,11 @@ package com.paklog.warehouse.domain.picklist;
 
 import com.paklog.warehouse.domain.shared.BinLocation;
 import com.paklog.warehouse.domain.shared.OrderId;
-import com.paklog.warehouse.domain.shared.PickInstruction;
-import com.paklog.warehouse.domain.shared.PickList;
+import com.paklog.warehouse.domain.picklist.PickInstruction;
+import com.paklog.warehouse.domain.picklist.PickList;
 import com.paklog.warehouse.domain.shared.Quantity;
 import com.paklog.warehouse.domain.shared.SkuCode;
-import com.paklog.warehouse.domain.shared.PickListStatus;
+import com.paklog.warehouse.domain.picklist.PickListStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

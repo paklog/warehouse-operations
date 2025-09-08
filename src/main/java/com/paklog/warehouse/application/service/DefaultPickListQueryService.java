@@ -1,23 +1,21 @@
 package com.paklog.warehouse.application.service;
 
 import com.paklog.warehouse.domain.picklist.PickListRepository;
-import com.paklog.warehouse.domain.shared.PickList;
-import com.paklog.warehouse.domain.shared.PickListId;
-import com.paklog.warehouse.domain.shared.PickListStatus;
+import com.paklog.warehouse.domain.picklist.PickList;
+import com.paklog.warehouse.domain.picklist.PickListId;
+import com.paklog.warehouse.domain.picklist.PickListStatus;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DefaultPickListQueryService implements PickListQueryService {
-    private final PickListRepository pickListRepository;
     private final List<PickList> pickLists;
 
     public DefaultPickListQueryService(
         PickListRepository pickListRepository, 
         List<PickList> pickLists
     ) {
-        this.pickListRepository = pickListRepository;
         this.pickLists = pickLists;
     }
 

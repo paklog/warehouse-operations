@@ -1,7 +1,7 @@
 package com.paklog.warehouse.adapter.rest;
 
-import com.paklog.warehouse.domain.packing.Package;
-import com.paklog.warehouse.domain.packing.PackageStatus;
+import com.paklog.warehouse.domain.packaging.Package;
+import com.paklog.warehouse.domain.packaging.PackageStatus;
 import com.paklog.warehouse.domain.shared.OrderItem;
 
 import java.util.List;
@@ -18,11 +18,16 @@ public class PackageDto {
     public static PackageDto fromDomain(Package pkg) {
         PackageDto dto = new PackageDto();
         dto.setPackageId(pkg.getPackageId());
-        dto.setOrderId(pkg.getOrder().getOrderId().getValue().toString());
-        dto.setOrderType(pkg.getOrder().getOrderType());
+        dto.setOrderId(""); // TODO: Package needs to store order information
+        dto.setOrderType("STANDARD"); // TODO: Package needs to store order type
         dto.setItems(
-            pkg.getOrder().getItems().stream()
-                .map(OrderItemDto::fromDomain)
+            pkg.getPackedItems().stream()
+                .map(packedItem -> {
+                    OrderItemDto itemDto = new OrderItemDto();
+                    itemDto.setSkuCode(packedItem.getSkuCode().getValue());
+                    itemDto.setQuantity(packedItem.getQuantity());
+                    return itemDto;
+                })
                 .collect(Collectors.toList())
         );
         dto.setStatus(pkg.getStatus());

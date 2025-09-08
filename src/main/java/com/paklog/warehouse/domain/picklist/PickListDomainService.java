@@ -1,8 +1,8 @@
 package com.paklog.warehouse.domain.picklist;
 
 import com.paklog.warehouse.domain.shared.BinLocation;
-import com.paklog.warehouse.domain.shared.PickInstruction;
-import com.paklog.warehouse.domain.shared.PickList;
+import com.paklog.warehouse.domain.picklist.PickInstruction;
+import com.paklog.warehouse.domain.picklist.PickList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ public class PickListDomainService {
             return false;
         }
         
-        if (pickList.getStatus() != PickListStatus.PENDING) {
+        if (pickList.getStatus() != com.paklog.warehouse.domain.picklist.PickListStatus.PENDING) {
             logger.warn("Cannot assign pick list {} - status is {}", pickList.getId(), pickList.getStatus());
             return false;
         }
@@ -54,7 +54,7 @@ public class PickListDomainService {
         }
         
         try {
-            List<PickInstruction> optimizedInstructions = routeOptimizer.optimize(pickList.getInstructions());
+            List<PickInstruction> optimizedInstructions = routeOptimizer.optimizePickRoute(pickList);
             
             // Create a new pick list with optimized instructions
             PickList optimizedPickList = new PickList(pickList.getOrderId());
@@ -84,7 +84,7 @@ public class PickListDomainService {
         }
         
         // Business rule: Pick list must be assigned status
-        if (pickList.getStatus() != PickListStatus.ASSIGNED) {
+        if (pickList.getStatus() != com.paklog.warehouse.domain.picklist.PickListStatus.ASSIGNED) {
             logger.warn("Cannot confirm pick - pick list {} status is {}", pickList.getId(), pickList.getStatus());
             return false;
         }

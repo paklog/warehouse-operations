@@ -1,6 +1,6 @@
 package com.paklog.warehouse.adapter.rest;
 
-import com.paklog.warehouse.domain.shared.PickInstruction;
+import com.paklog.warehouse.domain.picklist.PickInstruction;
 import com.paklog.warehouse.domain.shared.SkuCode;
 import com.paklog.warehouse.domain.shared.Quantity;
 import com.paklog.warehouse.domain.shared.BinLocation;

@@ -17,8 +17,4 @@ public class EntityNotFoundException extends RuntimeException {
     public static EntityNotFoundException packageNotFound(String packageId) {
         return new EntityNotFoundException("Package not found with ID: " + packageId);
     }
-    
-    public static EntityNotFoundException orderNotFound(String orderId) {
-        return new EntityNotFoundException("Order not found with ID: " + orderId);
-    }
 }

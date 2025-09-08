@@ -1,6 +1,6 @@
 package com.paklog.warehouse.domain.picklist;
 
-import com.paklog.warehouse.domain.shared.PickList;
+import com.paklog.warehouse.domain.picklist.PickList;
 import com.paklog.warehouse.domain.shared.BinLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,8 +1,9 @@
 package com.paklog.warehouse.domain.workload;
 
 import com.paklog.warehouse.domain.shared.FulfillmentOrder;
-import com.paklog.warehouse.domain.shared.List;
 import com.paklog.warehouse.domain.shared.WorkloadPlan;
+
+import java.util.List;
 
 public class WorkloadReleaseContext {
     private final IWorkloadReleaseStrategy strategy;

@@ -1,7 +1,7 @@
 package com.paklog.warehouse.adapter.rest;
 
 import com.paklog.warehouse.application.service.PackingStationService;
-import com.paklog.warehouse.domain.packing.Package;
+import com.paklog.warehouse.domain.packaging.Package;
 import com.paklog.warehouse.domain.shared.OrderId;
 import com.paklog.warehouse.domain.shared.FulfillmentOrder;
 import com.paklog.warehouse.domain.shared.Address;
@@ -12,10 +12,10 @@ import com.paklog.warehouse.domain.shared.Quantity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Positive;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Positive;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;

@@ -1,12 +1,12 @@
 package com.paklog.warehouse.application.service;
 
-import com.paklog.warehouse.domain.packing.Package;
-import com.paklog.warehouse.domain.packing.PackageRepository;
-import com.paklog.warehouse.domain.packing.PackageStatus;
+import com.paklog.warehouse.domain.packaging.Package;
+import com.paklog.warehouse.domain.packaging.PackageRepository;
+import com.paklog.warehouse.domain.packaging.PackageStatus;
 import com.paklog.warehouse.domain.picklist.PickListRepository;
 import com.paklog.warehouse.domain.shared.FulfillmentOrder;
 import com.paklog.warehouse.domain.shared.OrderId;
-import com.paklog.warehouse.domain.shared.PickList;
+import com.paklog.warehouse.domain.picklist.PickList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

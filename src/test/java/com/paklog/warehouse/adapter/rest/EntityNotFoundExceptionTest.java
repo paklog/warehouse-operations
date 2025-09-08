@@ -76,19 +76,6 @@ class EntityNotFoundExceptionTest {
             assertThat(exception.getMessage()).isEqualTo("Package not found with ID: " + packageId);
         }
 
-        @Test
-        @DisplayName("Should create order not found exception")
-        void shouldCreateOrderNotFoundException() {
-            // Arrange
-            String orderId = "order-789";
-
-            // Act
-            EntityNotFoundException exception = EntityNotFoundException.orderNotFound(orderId);
-
-            // Assert
-            assertThat(exception).isNotNull();
-            assertThat(exception.getMessage()).isEqualTo("Order not found with ID: " + orderId);
-        }
     }
 
     @Nested

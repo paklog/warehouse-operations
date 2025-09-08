@@ -1,7 +1,7 @@
 package com.paklog.warehouse.adapter.rest;
 
-import com.paklog.warehouse.domain.shared.PickList;
-import com.paklog.warehouse.domain.shared.PickListStatus;
+import com.paklog.warehouse.domain.picklist.PickList;
+import com.paklog.warehouse.domain.picklist.PickListStatus;
 
 import java.util.List;
 import java.util.stream.Collectors;

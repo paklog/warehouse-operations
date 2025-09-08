@@ -1,11 +1,7 @@
 package com.paklog.warehouse.domain.workload;
 
-import com.paklog.warehouse.domain.shared.Address;
-import com.paklog.warehouse.domain.shared.FulfillmentOrder;
-import com.paklog.warehouse.domain.shared.OrderId;
-import com.paklog.warehouse.domain.shared.OrderItem;
-import com.paklog.warehouse.domain.shared.Quantity;
-import com.paklog.warehouse.domain.shared.SkuCode;
+import com.paklog.warehouse.domain.picklist.PickListCreatedEvent;
+import com.paklog.warehouse.domain.shared.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -22,7 +18,7 @@ class ContinuousStrategyTest {
         FulfillmentOrder order2 = new FulfillmentOrder(OrderId.generate(), "express", new Address(), List.of(new OrderItem(SkuCode.of("SKU-002"), Quantity.of(1))));
 
         WorkloadPlan plan = strategy.planWork(List.of(order1, order2));
-        List&lt;DomainEvent&gt; events = plan.getEvents();
+        List<DomainEvent> events = plan.getEvents();
 
         assertNotNull(events);
         assertEquals(2, events.size());

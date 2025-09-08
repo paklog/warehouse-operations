@@ -8,7 +8,7 @@ import java.util.Objects;
 public class WorkloadPlan {
     private final List<DomainEvent> events;
 
-    public WorkloadPlan(List<DomainEvent> inputEvents) {
+    public  WorkloadPlan(List<DomainEvent> inputEvents) {
         this.events = new ArrayList<>(Objects.requireNonNull(inputEvents, "Events cannot be null"));
     }
 

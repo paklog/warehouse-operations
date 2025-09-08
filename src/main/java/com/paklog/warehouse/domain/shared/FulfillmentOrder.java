@@ -34,6 +34,16 @@ public class FulfillmentOrder {
         return Collections.unmodifiableList(items);
     }
 
+    public String getShippingSpeedCategory() {
+        if ("EXPRESS".equalsIgnoreCase(orderType)) {
+            return "EXPRESS";
+        } else if ("PRIORITY".equalsIgnoreCase(orderType)) {
+            return "PRIORITY";
+        } else {
+            return "STANDARD";
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

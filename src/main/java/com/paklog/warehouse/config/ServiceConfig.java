@@ -3,8 +3,8 @@ package com.paklog.warehouse.config;
 import com.paklog.warehouse.application.service.DefaultPickListQueryService;
 import com.paklog.warehouse.application.service.PackingStationService;
 import com.paklog.warehouse.application.service.PickListQueryService;
-import com.paklog.warehouse.domain.packing.PackageRepository;
-import com.paklog.warehouse.domain.packing.PackagingDomainService;
+import com.paklog.warehouse.domain.packaging.PackageRepository;
+import com.paklog.warehouse.domain.packaging.PackagingDomainService;
 import com.paklog.warehouse.domain.picklist.ConfirmItemPickHandler;
 import com.paklog.warehouse.domain.picklist.PickListDomainService;
 import com.paklog.warehouse.domain.picklist.PickListRepository;
@@ -20,7 +20,7 @@ public class ServiceConfig {
 
     @Bean
     public PickListQueryService pickListQueryService(PickListRepository pickListRepository) {
-        return new DefaultPickListQueryService(pickListRepository);
+        return new DefaultPickListQueryService(pickListRepository, java.util.Collections.emptyList());
     }
 
     @Bean

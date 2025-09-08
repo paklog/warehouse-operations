@@ -1,8 +1,8 @@
 package com.paklog.warehouse.domain.picklist;
 
 import com.paklog.warehouse.domain.shared.BinLocation;
-import com.paklog.warehouse.domain.shared.PickList;
-import com.paklog.warehouse.domain.shared.PickInstruction;
+import com.paklog.warehouse.domain.picklist.PickList;
+import com.paklog.warehouse.domain.picklist.PickInstruction;
 
 import java.util.ArrayList;
 import java.util.Comparator;
