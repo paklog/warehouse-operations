@@ -20,6 +20,15 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
 
+  # Spring MVC Configuration for content negotiation
+  mvc:
+    contentnegotiation:
+      favor-parameter: false
+      favor-path-extension: false
+      media-types:
+        json: application/json
+        xml: application/xml
+
 # Logging Configuration
 logging:
   level:
@@ -59,3 +68,12 @@ management:
       enabled: true
     kafka:
       enabled: true
+
+# OpenAPI Documentation Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha

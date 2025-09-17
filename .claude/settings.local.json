@@ -5,7 +5,11 @@
       "Bash(mvn clean:*)",
       "Bash(mvn:*)",
       "Bash(tree:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(mkdir:*)",
+      "Bash(cat:*)",
+      "Bash(timeout 10s mvn spring-boot:run:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

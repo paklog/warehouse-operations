@@ -12,12 +12,24 @@ public abstract class AggregateRoot {
             domainEvents.add(event);
         }
     }
+    
+    protected void addDomainEvent(DomainEvent event) {
+        registerEvent(event);
+    }
 
     public List<DomainEvent> getDomainEvents() {
         return Collections.unmodifiableList(domainEvents);
     }
 
     public void clearDomainEvents() {
+        domainEvents.clear();
+    }
+
+    public List<DomainEvent> getUncommittedEvents() {
+        return Collections.unmodifiableList(domainEvents);
+    }
+
+    public void clearEvents() {
         domainEvents.clear();
     }
 }

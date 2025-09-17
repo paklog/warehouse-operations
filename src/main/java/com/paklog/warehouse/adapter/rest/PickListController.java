@@ -11,7 +11,16 @@ import com.paklog.warehouse.domain.shared.BinLocation;
 import com.paklog.warehouse.domain.picklist.PickList;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.CacheControl;
 import org.springframework.web.bind.annotation.*;
+
+// OpenAPI Documentation imports
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -20,7 +29,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/picklists")
+@RequestMapping("/api/v1/picklists")
+@Tag(name = "Pick Lists", description = "REST API for managing warehouse pick lists")
 public class PickListController {
     private final PickListQueryService pickListQueryService;
     private final ConfirmItemPickHandler confirmItemPickHandler;
@@ -33,23 +43,38 @@ public class PickListController {
         this.confirmItemPickHandler = confirmItemPickHandler;
     }
 
-    @GetMapping("/{pickListId}")
-    public ResponseEntity<PickListDto> getPickList(@PathVariable @NotBlank String pickListId) {
+    @Operation(summary = "Get pick list by ID", description = "Retrieves a specific pick list by its ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Pick list found"),
+        @ApiResponse(responseCode = "404", description = "Pick list not found")
+    })
+    @GetMapping(value = "/{pickListId}", produces = "application/json")
+    public ResponseEntity<PickListDto> getPickList(
+            @Parameter(description = "Pick list ID", required = true) 
+            @PathVariable @NotBlank String pickListId) {
         PickList pickList = pickListQueryService.findById(PickListId.of(pickListId));
         if (pickList == null) {
             throw EntityNotFoundException.pickListNotFound(pickListId);
         }
-        return ResponseEntity.ok(PickListDto.fromDomain(pickList));
+        return ResponseEntity.ok()
+            .cacheControl(CacheControl.maxAge(java.time.Duration.ofMinutes(5)))
+            .body(PickListDto.fromDomain(pickList));
     }
 
-    @GetMapping("/picker/{pickerId}")
-    public ResponseEntity<List<PickListDto>> getPickListsByPicker(@PathVariable @NotBlank String pickerId) {
+    @Operation(summary = "Get pick lists by picker", description = "Retrieves all pick lists assigned to a specific picker")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Pick lists retrieved successfully")
+    })
+    @GetMapping(value = "/pickers/{pickerId}", produces = "application/json")
+    public ResponseEntity<List<PickListDto>> getPickListsByPicker(
+            @Parameter(description = "Picker ID", required = true) 
+            @PathVariable @NotBlank String pickerId) {
         List<PickList> pickLists = pickListQueryService.findByPickerId(pickerId);
-        return ResponseEntity.ok(
-            pickLists.stream()
+        return ResponseEntity.ok()
+            .cacheControl(CacheControl.maxAge(java.time.Duration.ofMinutes(2)))
+            .body(pickLists.stream()
                 .map(PickListDto::fromDomain)
-                .collect(Collectors.toList())
-        );
+                .collect(Collectors.toList()));
     }
 
     @GetMapping("/status/{status}")

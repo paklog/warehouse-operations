@@ -10,7 +10,16 @@ import com.paklog.warehouse.domain.shared.SkuCode;
 import com.paklog.warehouse.domain.shared.Quantity;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.CacheControl;
 import org.springframework.web.bind.annotation.*;
+
+// OpenAPI Documentation imports
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -21,7 +30,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/packages")
+@RequestMapping("/api/v1/packages")
+@Tag(name = "Packages", description = "REST API for managing warehouse packages and shipping")
 public class PackageController {
 
     private final PackingStationService packingStationService;

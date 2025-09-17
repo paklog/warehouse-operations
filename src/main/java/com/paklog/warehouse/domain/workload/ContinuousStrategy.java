@@ -1,5 +1,7 @@
 package com.paklog.warehouse.domain.workload;
 
+import com.paklog.warehouse.domain.picklist.PickListCreatedEvent;
+import com.paklog.warehouse.domain.picklist.PickListId;
 import com.paklog.warehouse.domain.shared.DomainEvent;
 import com.paklog.warehouse.domain.shared.FulfillmentOrder;
 import com.paklog.warehouse.domain.shared.WorkloadPlan;
@@ -12,8 +14,18 @@ public class ContinuousStrategy implements IWorkloadReleaseStrategy {
 
     @Override
     public WorkloadPlan planWork(List<FulfillmentOrder> orders) {
-        // Placeholder implementation
-        return new WorkloadPlan(events);
+        List<DomainEvent> planEvents = new ArrayList<>();
+        
+        // Create a PickListCreatedEvent for each fulfillment order
+        for (FulfillmentOrder order : orders) {
+            PickListCreatedEvent event = new PickListCreatedEvent(
+                PickListId.generate(), 
+                order.getOrderId()
+            );
+            planEvents.add(event);
+        }
+        
+        return new WorkloadPlan(planEvents);
     }
 
     @Override

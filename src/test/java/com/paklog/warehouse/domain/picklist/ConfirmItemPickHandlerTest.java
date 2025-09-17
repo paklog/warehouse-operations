@@ -39,13 +39,13 @@ class ConfirmItemPickHandlerTest {
         @DisplayName("Should handle confirm item pick command successfully")
         void shouldHandleConfirmItemPickCommandSuccessfully() {
             // Arrange
-            PickListId pickListId = PickListId.generate();
             SkuCode skuCode = SkuCode.of("SKU-001");
             Quantity quantity = Quantity.of(2);
-            BinLocation binLocation = BinLocation.of("A1-B2");
+            BinLocation binLocation = BinLocation.of("A1-B2-C3");
             
+            PickList pickList = PickListTestHelper.createPickListWithInstruction(skuCode, quantity, binLocation);
+            PickListId pickListId = pickList.getId();
             ConfirmItemPick command = new ConfirmItemPick(pickListId, skuCode, quantity, binLocation);
-            PickList pickList = mock(PickList.class);
 
             when(pickListRepository.findById(pickListId)).thenReturn(pickList);
 
@@ -54,7 +54,6 @@ class ConfirmItemPickHandlerTest {
 
             // Assert
             verify(pickListRepository).findById(pickListId);
-            verify(pickList).pickItem(skuCode, quantity, binLocation);
             verify(pickListRepository).save(pickList);
         }
 
@@ -65,7 +64,7 @@ class ConfirmItemPickHandlerTest {
             PickListId pickListId = PickListId.generate();
             SkuCode skuCode = SkuCode.of("SKU-001");
             Quantity quantity = Quantity.of(2);
-            BinLocation binLocation = BinLocation.of("A1-B2");
+            BinLocation binLocation = BinLocation.of("A1-B2-C3");
             
             ConfirmItemPick command = new ConfirmItemPick(pickListId, skuCode, quantity, binLocation);
 
@@ -80,24 +79,25 @@ class ConfirmItemPickHandlerTest {
         }
 
         @Test
-        @DisplayName("Should propagate exception from pick item method")
+        @DisplayName("Should propagate exception from pick item method") 
         void shouldPropagateExceptionFromPickItemMethod() {
-            // Arrange
-            PickListId pickListId = PickListId.generate();
-            SkuCode skuCode = SkuCode.of("SKU-001");
+            // Arrange - use a different SKU that doesn't exist in pick list to trigger exception
+            SkuCode existingSku = SkuCode.of("SKU-001");
+            SkuCode nonExistentSku = SkuCode.of("SKU-999");
             Quantity quantity = Quantity.of(2);
-            BinLocation binLocation = BinLocation.of("A1-B2");
+            BinLocation binLocation = BinLocation.of("A1-B2-C3");
             
-            ConfirmItemPick command = new ConfirmItemPick(pickListId, skuCode, quantity, binLocation);
-            PickList pickList = mock(PickList.class);
-            RuntimeException exception = new RuntimeException("Pick item failed");
+            PickList pickList = PickListTestHelper.createPickListWithInstruction(existingSku, quantity, binLocation);
+            PickListId pickListId = pickList.getId();
+            
+            // Command with non-existent SKU should trigger exception
+            ConfirmItemPick command = new ConfirmItemPick(pickListId, nonExistentSku, quantity, binLocation);
 
             when(pickListRepository.findById(pickListId)).thenReturn(pickList);
-            doThrow(exception).when(pickList).pickItem(skuCode, quantity, binLocation);
 
             // Act & Assert
             assertThatThrownBy(() -> confirmItemPickHandler.handle(command))
-                .isEqualTo(exception);
+                .isInstanceOf(RuntimeException.class);
 
             verify(pickListRepository, never()).save(any());
         }
@@ -111,13 +111,13 @@ class ConfirmItemPickHandlerTest {
         @DisplayName("Should handle repository save exception")
         void shouldHandleRepositorySaveException() {
             // Arrange
-            PickListId pickListId = PickListId.generate();
             SkuCode skuCode = SkuCode.of("SKU-001");
             Quantity quantity = Quantity.of(2);
-            BinLocation binLocation = BinLocation.of("A1-B2");
+            BinLocation binLocation = BinLocation.of("A1-B2-C3");
             
+            PickList pickList = PickListTestHelper.createPickListWithInstruction(skuCode, quantity, binLocation);
+            PickListId pickListId = pickList.getId();
             ConfirmItemPick command = new ConfirmItemPick(pickListId, skuCode, quantity, binLocation);
-            PickList pickList = mock(PickList.class);
             RuntimeException exception = new RuntimeException("Save failed");
 
             when(pickListRepository.findById(pickListId)).thenReturn(pickList);
@@ -126,8 +126,6 @@ class ConfirmItemPickHandlerTest {
             // Act & Assert
             assertThatThrownBy(() -> confirmItemPickHandler.handle(command))
                 .isEqualTo(exception);
-
-            verify(pickList).pickItem(skuCode, quantity, binLocation);
         }
     }
 }

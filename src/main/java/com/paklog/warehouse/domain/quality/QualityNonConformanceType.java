@@ -1,0 +1,15 @@
+package com.paklog.warehouse.domain.quality;
+
+public enum QualityNonConformanceType {
+    SPECIFICATION_DEVIATION,
+    DIMENSIONAL_VARIANCE,
+    APPEARANCE_DEFECT,
+    FUNCTIONAL_FAILURE,
+    PACKAGING_DAMAGE,
+    CONTAMINATION,
+    MISSING_COMPONENT,
+    INCORRECT_QUANTITY,
+    DOCUMENTATION_ERROR,
+    EXPIRY_DATE_ISSUE,
+    OTHER
+}

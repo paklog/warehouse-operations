@@ -7,13 +7,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.*;
@@ -25,15 +28,22 @@ class GlobalExceptionHandlerTest {
 
     private GlobalExceptionHandler globalExceptionHandler;
 
-    @Mock
-    private MethodArgumentNotValidException methodArgumentNotValidException;
-
-    @Mock
-    private BindingResult bindingResult;
-
     @BeforeEach
     void setUp() {
         globalExceptionHandler = new GlobalExceptionHandler();
+    }
+    
+    private MethodArgumentNotValidException createMethodArgumentNotValidException() throws NoSuchMethodException {
+        // Create a MethodParameter from any method (using -1 for no parameters)
+        Method method = this.getClass().getDeclaredMethod("setUp");
+        MethodParameter methodParameter = new MethodParameter(method, -1);
+        
+        // Create a BeanPropertyBindingResult with field errors
+        BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(new Object(), "testObject");
+        bindingResult.addError(new FieldError("testObject", "field1", "Field 1 is required"));
+        bindingResult.addError(new FieldError("testObject", "field2", "Field 2 is invalid"));
+        
+        return new MethodArgumentNotValidException(methodParameter, bindingResult);
     }
 
     @Nested
@@ -91,17 +101,13 @@ class GlobalExceptionHandlerTest {
 
         @Test
         @DisplayName("Should handle validation errors correctly")
-        void shouldHandleValidationErrorsCorrectly() {
+        void shouldHandleValidationErrorsCorrectly() throws NoSuchMethodException {
             // Arrange
-            FieldError fieldError1 = new FieldError("object", "field1", "Field1 is required");
-            FieldError fieldError2 = new FieldError("object", "field2", "Field2 is invalid");
-
-            when(methodArgumentNotValidException.getBindingResult()).thenReturn(bindingResult);
-            when(bindingResult.getFieldErrors()).thenReturn(Arrays.asList(fieldError1, fieldError2));
+            MethodArgumentNotValidException exception = createMethodArgumentNotValidException();
 
             // Act
             ResponseEntity<GlobalExceptionHandler.ErrorResponse> response = 
-                globalExceptionHandler.handleValidationException(methodArgumentNotValidException);
+                globalExceptionHandler.handleValidationException(exception);
 
             // Assert
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -119,11 +125,12 @@ class GlobalExceptionHandlerTest {
 
         @Test
         @DisplayName("Should handle type mismatch errors correctly")
-        void shouldHandleTypeMismatchErrorsCorrectly() {
-            // Arrange
-            MethodArgumentTypeMismatchException exception = mock(MethodArgumentTypeMismatchException.class);
-            when(exception.getValue()).thenReturn("invalid-value");
-            when(exception.getName()).thenReturn("parameterName");
+        void shouldHandleTypeMismatchErrorsCorrectly() throws NoSuchMethodException {
+            // Arrange  
+            Method method = this.getClass().getDeclaredMethod("shouldHandleTypeMismatchErrorsCorrectly");
+            MethodParameter methodParameter = new MethodParameter(method, -1);
+            MethodArgumentTypeMismatchException exception = new MethodArgumentTypeMismatchException(
+                "invalid-value", String.class, "parameterName", methodParameter, new RuntimeException("Type error"));
 
             // Act
             ResponseEntity<GlobalExceptionHandler.ErrorResponse> response = 

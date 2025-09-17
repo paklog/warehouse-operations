@@ -20,7 +20,10 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
-@EnableMongoRepositories(basePackages = "com.paklog.warehouse.adapter.persistence.mongodb")
+@EnableMongoRepositories(basePackages = {
+    "com.paklog.warehouse.adapter.persistence.mongodb",
+    "com.paklog.warehouse.infrastructure.messaging"
+})
 @EnableMongoAuditing(auditorAwareRef = "auditorProvider")
 public class MongoDBConfig extends AbstractMongoClientConfiguration {
 

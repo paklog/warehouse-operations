@@ -35,4 +35,8 @@ public class WaveCancelledEvent implements DomainEvent {
     public Instant getCancelledDate() {
         return cancelledDate;
     }
+
+    public Instant getCancelledAt() {
+        return cancelledDate;
+    }
 }

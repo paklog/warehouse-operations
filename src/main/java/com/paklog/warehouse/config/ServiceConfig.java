@@ -12,6 +12,11 @@ import com.paklog.warehouse.domain.picklist.PickRouteOptimizer;
 import com.paklog.warehouse.domain.workload.ContinuousStrategy;
 import com.paklog.warehouse.domain.workload.IWorkloadReleaseStrategy;
 import com.paklog.warehouse.domain.workload.WorkloadOrchestrator;
+import com.paklog.warehouse.domain.quality.*;
+import com.paklog.warehouse.domain.location.*;
+import com.paklog.warehouse.domain.licenseplate.*;
+import com.paklog.warehouse.domain.work.WorkRepository;
+import com.paklog.warehouse.domain.work.WorkTemplateRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -53,5 +58,42 @@ public class ServiceConfig {
     @Bean
     public PackagingDomainService packagingDomainService() {
         return new PackagingDomainService();
+    }
+
+    // Quality Domain Services
+    @Bean
+    public QualityInspectionService qualityInspectionService(QualityInspectionRepository inspectionRepository) {
+        return new QualityInspectionService(inspectionRepository);
+    }
+
+    @Bean
+    public QualityHoldService qualityHoldService(QualityHoldRepository holdRepository) {
+        return new QualityHoldService(holdRepository);
+    }
+
+    @Bean
+    public QualityWorkIntegrationService qualityWorkIntegrationService(
+            QualityInspectionRepository inspectionRepository,
+            WorkRepository workRepository) {
+        return new QualityWorkIntegrationService(inspectionRepository, workRepository);
+    }
+
+    // Location Domain Services
+    @Bean
+    public LocationDirectiveService locationDirectiveService(LocationDirectiveRepository directiveRepository) {
+        return new LocationDirectiveService(directiveRepository);
+    }
+
+    // License Plate Domain Services
+    @Bean
+    public DefaultLicensePlateGenerator licensePlateGenerator() {
+        return new DefaultLicensePlateGenerator("LP", 1);
+    }
+
+    @Bean
+    public LicensePlateService licensePlateService(
+            LicensePlateRepository licensePlateRepository,
+            LicensePlateGenerator licensePlateGenerator) {
+        return new LicensePlateService(licensePlateRepository, licensePlateGenerator);
     }
 }

@@ -27,7 +27,7 @@ class BarcodeScanValidationTest {
         validInstruction = Mockito.mock(PickInstruction.class);
         when(validInstruction.getSku()).thenReturn(SkuCode.of("SKU-001"));
         when(validInstruction.getQuantity()).thenReturn(Quantity.of(5));
-        when(validInstruction.getBinLocation()).thenReturn(BinLocation.of("A1"));
+        when(validInstruction.getBinLocation()).thenReturn(BinLocation.of("A1-B2-C3"));
         when(validInstruction.isCompleted()).thenReturn(false);
         
         // Add the instruction to the pick list
@@ -41,7 +41,7 @@ class BarcodeScanValidationTest {
             pickList.pickItem(
                 SkuCode.of("SKU-001"), 
                 Quantity.of(5), 
-                BinLocation.of("A1")
+                BinLocation.of("A1-B2-C3")
             )
         );
         
@@ -56,7 +56,7 @@ class BarcodeScanValidationTest {
             pickList.pickItem(
                 SkuCode.of("SKU-002"), 
                 Quantity.of(5), 
-                BinLocation.of("A1")
+                BinLocation.of("A1-B2-C3")
             )
         );
     }
@@ -68,7 +68,7 @@ class BarcodeScanValidationTest {
             pickList.pickItem(
                 SkuCode.of("SKU-001"), 
                 Quantity.of(3), 
-                BinLocation.of("A1")
+                BinLocation.of("A1-B2-C3")
             )
         );
     }
@@ -79,7 +79,7 @@ class BarcodeScanValidationTest {
         pickList.pickItem(
             SkuCode.of("SKU-001"), 
             Quantity.of(5), 
-            BinLocation.of("A1")
+            BinLocation.of("A1-B2-C3")
         );
         
         // Attempt to pick the same instruction again
@@ -87,7 +87,7 @@ class BarcodeScanValidationTest {
             pickList.pickItem(
                 SkuCode.of("SKU-001"), 
                 Quantity.of(5), 
-                BinLocation.of("A1")
+                BinLocation.of("A1-B2-C3")
             )
         );
     }
@@ -98,7 +98,7 @@ class BarcodeScanValidationTest {
         pickList.pickItem(
             SkuCode.of("SKU-001"), 
             Quantity.of(5), 
-            BinLocation.of("A1")
+            BinLocation.of("A1-B2-C3")
         );
         
         // Verify the pick list status is completed
