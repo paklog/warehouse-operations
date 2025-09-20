@@ -9,7 +9,9 @@
       "Bash(mkdir:*)",
       "Bash(cat:*)",
       "Bash(timeout 10s mvn spring-boot:run:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

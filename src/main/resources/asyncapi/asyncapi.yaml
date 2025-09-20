@@ -1,162 +1,808 @@
 asyncapi: 2.6.0
 info:
-  title: Warehouse Operations Event Streaming
+  title: Warehouse Operations Domain Events
   version: 1.0.0
-  description: AsyncAPI specification for warehouse operations event streaming
+  description: |-
+    Domain event catalogue published by the Warehouse Operations service. Events are emitted as JSON
+    CloudEvent-like envelopes produced by the DomainEventPublisher. The topic name is derived from the
+    event class name by removing the `Event` suffix and converting from CamelCase to kebab-case
+    (e.g. `WorkAssignedEvent` -> `work-assigned`).
   contact:
     name: Paklog Warehouse Operations Team
     email: warehouse-ops@paklog.com
-
+defaultContentType: application/json
 servers:
-  production:
+  primary:
     url: kafka.paklog.com:9092
     protocol: kafka
-    description: Production Kafka broker for warehouse events
-
+    description: Production Kafka broker for warehouse domain events
 channels:
-  warehouse-events:
-    description: Primary channel for warehouse operations domain events
+  work-assigned:
+    description: Events emitted when work is assigned to a worker
     publish:
-      summary: Events published by Warehouse Operations Service
-      operationId: publishWarehouseEvent
+      summary: Work assignment events
+      operationId: publishWorkAssigned
       message:
-        $ref: '#/components/messages/WarehouseEvent'
-
-  package-events:
-    description: Events related to package creation and shipping
+        $ref: '#/components/messages/WorkAssignedEventMessage'
+  work-started:
+    description: Events emitted when a worker starts a work item
     publish:
-      summary: Package lifecycle events
-      operationId: publishPackageEvent
+      summary: Work start events
+      operationId: publishWorkStarted
       message:
-        $ref: '#/components/messages/PackageEvent'
-
-  pick-list-events:
-    description: Events related to pick list creation and processing
+        $ref: '#/components/messages/WorkStartedEventMessage'
+  work-released:
+    description: Events emitted when work is released and becomes available for assignment
     publish:
-      summary: Pick list lifecycle events
-      operationId: publishPickListEvent
+      summary: Work released events
+      operationId: publishWorkReleased
       message:
-        $ref: '#/components/messages/PickListEvent'
-
+        $ref: '#/components/messages/WorkReleasedEventMessage'
+  work-completed:
+    description: Events emitted when a worker completes a work item
+    publish:
+      summary: Work completion events
+      operationId: publishWorkCompleted
+      message:
+        $ref: '#/components/messages/WorkCompletedEventMessage'
+  work-cancelled:
+    description: Events emitted when work is cancelled
+    publish:
+      summary: Work cancellation events
+      operationId: publishWorkCancelled
+      message:
+        $ref: '#/components/messages/WorkCancelledEventMessage'
+  pick-list-created:
+    description: Events emitted when a pick list is created
+    publish:
+      summary: Pick list creation events
+      operationId: publishPickListCreated
+      message:
+        $ref: '#/components/messages/PickListCreatedEventMessage'
+  pick-list-assigned:
+    description: Events emitted when a pick list is assigned to a picker
+    publish:
+      summary: Pick list assignment events
+      operationId: publishPickListAssigned
+      message:
+        $ref: '#/components/messages/PickListAssignedEventMessage'
+  item-picked:
+    description: Events emitted when an item is picked from a pick list instruction
+    publish:
+      summary: Item picked events
+      operationId: publishItemPicked
+      message:
+        $ref: '#/components/messages/ItemPickedEventMessage'
+  pick-list-completed:
+    description: Events emitted when a pick list is completed
+    publish:
+      summary: Pick list completion events
+      operationId: publishPickListCompleted
+      message:
+        $ref: '#/components/messages/PickListCompletedEventMessage'
+  wave-created:
+    description: Events emitted when a wave is created
+    publish:
+      summary: Wave creation events
+      operationId: publishWaveCreated
+      message:
+        $ref: '#/components/messages/WaveCreatedEventMessage'
+  wave-released:
+    description: Events emitted when a wave is released
+    publish:
+      summary: Wave released events
+      operationId: publishWaveReleased
+      message:
+        $ref: '#/components/messages/WaveReleasedEventMessage'
+  wave-closed:
+    description: Events emitted when a wave is closed
+    publish:
+      summary: Wave closed events
+      operationId: publishWaveClosed
+      message:
+        $ref: '#/components/messages/WaveClosedEventMessage'
+  wave-cancelled:
+    description: Events emitted when a wave is cancelled
+    publish:
+      summary: Wave cancelled events
+      operationId: publishWaveCancelled
+      message:
+        $ref: '#/components/messages/WaveCancelledEventMessage'
+  license-plate-created:
+    description: Events emitted when a license plate is created
+    publish:
+      summary: License plate creation events
+      operationId: publishLicensePlateCreated
+      message:
+        $ref: '#/components/messages/LicensePlateCreatedEventMessage'
+  license-plate-received:
+    description: Events emitted when a license plate is received into the warehouse
+    publish:
+      summary: License plate receiving events
+      operationId: publishLicensePlateReceived
+      message:
+        $ref: '#/components/messages/LicensePlateReceivedEventMessage'
+  license-plate-inventory-added:
+    description: Events emitted when inventory is added to a license plate
+    publish:
+      summary: License plate inventory addition events
+      operationId: publishLicensePlateInventoryAdded
+      message:
+        $ref: '#/components/messages/LicensePlateInventoryAddedEventMessage'
+  license-plate-inventory-removed:
+    description: Events emitted when inventory is removed from a license plate
+    publish:
+      summary: License plate inventory removal events
+      operationId: publishLicensePlateInventoryRemoved
+      message:
+        $ref: '#/components/messages/LicensePlateInventoryRemovedEventMessage'
+  license-plate-moved:
+    description: Events emitted when a license plate is moved between locations
+    publish:
+      summary: License plate movement events
+      operationId: publishLicensePlateMoved
+      message:
+        $ref: '#/components/messages/LicensePlateMovedEventMessage'
+  license-plate-picked:
+    description: Events emitted when a license plate is picked for an order
+    publish:
+      summary: License plate picking events
+      operationId: publishLicensePlatePicked
+      message:
+        $ref: '#/components/messages/LicensePlatePickedEventMessage'
+  license-plate-shipped:
+    description: Events emitted when a license plate is shipped
+    publish:
+      summary: License plate shipping events
+      operationId: publishLicensePlateShipped
+      message:
+        $ref: '#/components/messages/LicensePlateShippedEventMessage'
+  license-plate-nesting-changed:
+    description: Events emitted when the nesting relationship of license plates changes
+    publish:
+      summary: License plate nesting change events
+      operationId: publishLicensePlateNestingChanged
+      message:
+        $ref: '#/components/messages/LicensePlateNestingChangedEventMessage'
 components:
   messages:
-    WarehouseEvent:
-      name: WarehouseEvent
-      title: Generic Warehouse Event
-      contentType: application/cloudevents+json
-      payload:
-        $ref: '#/components/schemas/CloudEvent'
-
-    PackageEvent:
-      name: PackageEvent
-      title: Package Lifecycle Event
-      contentType: application/cloudevents+json
+    WorkAssignedEventMessage:
+      name: WorkAssignedEvent
+      title: Work Assigned Event
       payload:
         allOf:
-          - $ref: '#/components/schemas/CloudEvent'
+          - $ref: '#/components/schemas/DomainEventEnvelope'
           - type: object
             properties:
-              data:
-                $ref: '#/components/schemas/PackageEventData'
-
-    PickListEvent:
-      name: PickListEvent
-      title: Pick List Lifecycle Event
-      contentType: application/cloudevents+json
+              payload:
+                $ref: '#/components/schemas/WorkAssignedPayload'
+    WorkStartedEventMessage:
+      name: WorkStartedEvent
+      title: Work Started Event
       payload:
         allOf:
-          - $ref: '#/components/schemas/CloudEvent'
+          - $ref: '#/components/schemas/DomainEventEnvelope'
           - type: object
             properties:
-              data:
-                $ref: '#/components/schemas/PickListEventData'
-
+              payload:
+                $ref: '#/components/schemas/WorkStartedPayload'
+    WorkReleasedEventMessage:
+      name: WorkReleasedEvent
+      title: Work Released Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/WorkReleasedPayload'
+    WorkCompletedEventMessage:
+      name: WorkCompletedEvent
+      title: Work Completed Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/WorkCompletedPayload'
+    WorkCancelledEventMessage:
+      name: WorkCancelledEvent
+      title: Work Cancelled Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/WorkCancelledPayload'
+    PickListCreatedEventMessage:
+      name: PickListCreatedEvent
+      title: Pick List Created Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/PickListCreatedPayload'
+    PickListAssignedEventMessage:
+      name: PickListAssignedEvent
+      title: Pick List Assigned Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/PickListAssignedPayload'
+    ItemPickedEventMessage:
+      name: ItemPickedEvent
+      title: Item Picked Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/ItemPickedPayload'
+    PickListCompletedEventMessage:
+      name: PickListCompletedEvent
+      title: Pick List Completed Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/PickListCompletedPayload'
+    WaveCreatedEventMessage:
+      name: WaveCreatedEvent
+      title: Wave Created Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/WaveCreatedPayload'
+    WaveReleasedEventMessage:
+      name: WaveReleasedEvent
+      title: Wave Released Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/WaveReleasedPayload'
+    WaveClosedEventMessage:
+      name: WaveClosedEvent
+      title: Wave Closed Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/WaveClosedPayload'
+    WaveCancelledEventMessage:
+      name: WaveCancelledEvent
+      title: Wave Cancelled Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/WaveCancelledPayload'
+    LicensePlateCreatedEventMessage:
+      name: LicensePlateCreatedEvent
+      title: License Plate Created Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/LicensePlateCreatedPayload'
+    LicensePlateReceivedEventMessage:
+      name: LicensePlateReceivedEvent
+      title: License Plate Received Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/LicensePlateReceivedPayload'
+    LicensePlateInventoryAddedEventMessage:
+      name: LicensePlateInventoryAddedEvent
+      title: License Plate Inventory Added Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/LicensePlateInventoryAddedPayload'
+    LicensePlateInventoryRemovedEventMessage:
+      name: LicensePlateInventoryRemovedEvent
+      title: License Plate Inventory Removed Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/LicensePlateInventoryRemovedPayload'
+    LicensePlateMovedEventMessage:
+      name: LicensePlateMovedEvent
+      title: License Plate Moved Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/LicensePlateMovedPayload'
+    LicensePlatePickedEventMessage:
+      name: LicensePlatePickedEvent
+      title: License Plate Picked Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/LicensePlatePickedPayload'
+    LicensePlateShippedEventMessage:
+      name: LicensePlateShippedEvent
+      title: License Plate Shipped Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/LicensePlateShippedPayload'
+    LicensePlateNestingChangedEventMessage:
+      name: LicensePlateNestingChangedEvent
+      title: License Plate Nesting Changed Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/LicensePlateNestingChangedPayload'
   schemas:
-    CloudEvent:
+    DomainEventEnvelope:
       type: object
       required:
-        - specversion
-        - id
-        - source
-        - type
-        - time
+        - eventType
+        - eventId
+        - occurredAt
+        - payload
       properties:
-        specversion:
+        eventType:
           type: string
-          enum: ['1.0']
-        id:
+          description: Fully qualified Java class name of the domain event
+        eventId:
           type: string
-          description: Unique event identifier
-        source:
-          type: string
-          description: Event source URI
-        type:
-          type: string
-          description: Event type
-        time:
+          format: uuid
+          description: Unique event identifier generated when the event is created
+        occurredAt:
           type: string
           format: date-time
-        datacontenttype:
-          type: string
-        data:
+          description: Timestamp when the event occurred
+        payload:
           type: object
-
-    PackageEventData:
+          description: Event-specific payload
+    WorkAssignedPayload:
       type: object
       required:
-        - packageId
-        - orderId
-        - status
+        - workId
+        - assignedTo
       properties:
-        packageId:
+        workId:
           type: string
-        orderId:
+          format: uuid
+          description: Work identifier
+        assignedTo:
           type: string
-        status:
+          description: Worker assigned to the task
+    WorkStartedPayload:
+      type: object
+      required:
+        - workId
+        - assignedTo
+      properties:
+        workId:
           type: string
-          enum:
-            - CREATED
-            - PACKED
-            - CONFIRMED
-            - SHIPPED
-        items:
-          type: array
-          items:
-            type: object
-            properties:
-              skuCode:
-                type: string
-              quantity:
-                type: integer
-
-    PickListEventData:
+          format: uuid
+        assignedTo:
+          type: string
+          description: Worker who started the task
+    WorkReleasedPayload:
+      type: object
+      required:
+        - workId
+      properties:
+        workId:
+          type: string
+          format: uuid
+    WorkCompletedPayload:
+      type: object
+      required:
+        - workId
+        - completedBy
+        - completedAt
+      properties:
+        workId:
+          type: string
+          format: uuid
+        completedBy:
+          type: string
+          description: Worker who completed the task
+        completedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the work was completed
+    WorkCancelledPayload:
+      type: object
+      required:
+        - workId
+        - cancelledAt
+      properties:
+        workId:
+          type: string
+          format: uuid
+        reason:
+          type: string
+          nullable: true
+          description: Optional cancellation reason
+        cancelledAt:
+          type: string
+          format: date-time
+          description: Timestamp when the work was cancelled
+    PickListCreatedPayload:
       type: object
       required:
         - pickListId
         - orderId
-        - status
       properties:
         pickListId:
-          type: string
+          $ref: '#/components/schemas/PickListIdentifier'
         orderId:
+          $ref: '#/components/schemas/OrderIdentifier'
+        shippingSpeedCategory:
           type: string
-        status:
+          nullable: true
+          description: Shipping speed category derived from the wave (if available)
+    PickListAssignedPayload:
+      type: object
+      required:
+        - pickListId
+        - pickerId
+      properties:
+        pickListId:
+          $ref: '#/components/schemas/PickListIdentifier'
+        pickerId:
           type: string
-          enum:
-            - CREATED
-            - ASSIGNED
-            - IN_PROGRESS
-            - COMPLETED
-        picker:
+          description: Picker who received the assignment
+    ItemPickedPayload:
+      type: object
+      required:
+        - pickListId
+        - sku
+        - quantity
+        - binLocation
+      properties:
+        pickListId:
+          $ref: '#/components/schemas/PickListIdentifier'
+        sku:
+          $ref: '#/components/schemas/SkuCodeValue'
+        quantity:
+          $ref: '#/components/schemas/QuantityValue'
+        binLocation:
+          $ref: '#/components/schemas/BinLocation'
+        pickerId:
           type: string
-        items:
+          nullable: true
+          description: Picker who performed the pick
+    PickListCompletedPayload:
+      type: object
+      required:
+        - pickListId
+      properties:
+        pickListId:
+          $ref: '#/components/schemas/PickListIdentifier'
+    WaveCreatedPayload:
+      type: object
+      required:
+        - waveId
+        - orderIds
+      properties:
+        waveId:
+          $ref: '#/components/schemas/WaveIdentifier'
+        orderIds:
           type: array
+          minItems: 1
           items:
-            type: object
-            properties:
-              skuCode:
-                type: string
-              quantity:
-                type: integer
-              binLocation:
-                type: string
+            $ref: '#/components/schemas/OrderIdentifier'
+        shippingSpeedCategory:
+          type: string
+          nullable: true
+          description: Shipping speed category for the wave
+    WaveReleasedPayload:
+      type: object
+      required:
+        - waveId
+        - orderIds
+        - releaseDate
+      properties:
+        waveId:
+          $ref: '#/components/schemas/WaveIdentifier'
+        orderIds:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/OrderIdentifier'
+        releaseDate:
+          type: string
+          format: date-time
+          description: Timestamp when the wave was released
+    WaveClosedPayload:
+      type: object
+      required:
+        - waveId
+        - closedDate
+      properties:
+        waveId:
+          $ref: '#/components/schemas/WaveIdentifier'
+        closedDate:
+          type: string
+          format: date-time
+          description: Timestamp when the wave was closed
+    WaveCancelledPayload:
+      type: object
+      required:
+        - waveId
+        - cancelledDate
+      properties:
+        waveId:
+          $ref: '#/components/schemas/WaveIdentifier'
+        cancelledDate:
+          type: string
+          format: date-time
+          description: Timestamp when the wave was cancelled
+    LicensePlateCreatedPayload:
+      type: object
+      required:
+        - licensePlateId
+        - type
+        - createdBy
+        - createdAt
+      properties:
+        licensePlateId:
+          $ref: '#/components/schemas/LicensePlateIdentifier'
+        type:
+          $ref: '#/components/schemas/LicensePlateType'
+        createdBy:
+          type: string
+          description: User or system who created the license plate
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+    LicensePlateReceivedPayload:
+      type: object
+      required:
+        - licensePlateId
+        - location
+        - receivedBy
+        - receivedAt
+      properties:
+        licensePlateId:
+          $ref: '#/components/schemas/LicensePlateIdentifier'
+        location:
+          $ref: '#/components/schemas/BinLocation'
+        receivedBy:
+          type: string
+          description: User who received the license plate
+        receivedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the license plate was received
+        receivingReference:
+          type: string
+          nullable: true
+          description: Receiving reference or ASN identifier
+    LicensePlateInventoryAddedPayload:
+      type: object
+      required:
+        - licensePlateId
+        - item
+        - addedQuantity
+        - totalQuantity
+      properties:
+        licensePlateId:
+          $ref: '#/components/schemas/LicensePlateIdentifier'
+        item:
+          $ref: '#/components/schemas/SkuCodeValue'
+        addedQuantity:
+          $ref: '#/components/schemas/QuantityValue'
+        totalQuantity:
+          $ref: '#/components/schemas/QuantityValue'
+    LicensePlateInventoryRemovedPayload:
+      type: object
+      required:
+        - licensePlateId
+        - item
+        - removedQuantity
+        - remainingQuantity
+      properties:
+        licensePlateId:
+          $ref: '#/components/schemas/LicensePlateIdentifier'
+        item:
+          $ref: '#/components/schemas/SkuCodeValue'
+        removedQuantity:
+          $ref: '#/components/schemas/QuantityValue'
+        remainingQuantity:
+          $ref: '#/components/schemas/QuantityValue'
+    LicensePlateMovedPayload:
+      type: object
+      required:
+        - licensePlateId
+        - fromLocation
+        - toLocation
+        - movedBy
+        - movedAt
+      properties:
+        licensePlateId:
+          $ref: '#/components/schemas/LicensePlateIdentifier'
+        fromLocation:
+          $ref: '#/components/schemas/BinLocation'
+        toLocation:
+          $ref: '#/components/schemas/BinLocation'
+        movedBy:
+          type: string
+          description: User who moved the license plate
+        movedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the move occurred
+    LicensePlatePickedPayload:
+      type: object
+      required:
+        - licensePlateId
+        - pickedBy
+        - pickedAt
+      properties:
+        licensePlateId:
+          $ref: '#/components/schemas/LicensePlateIdentifier'
+        pickedBy:
+          type: string
+          description: User who picked the license plate
+        pickedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the license plate was picked
+    LicensePlateShippedPayload:
+      type: object
+      required:
+        - licensePlateId
+        - shipmentReference
+        - shippedBy
+        - shippedAt
+      properties:
+        licensePlateId:
+          $ref: '#/components/schemas/LicensePlateIdentifier'
+        shipmentReference:
+          type: string
+          description: External shipment reference
+        shippedBy:
+          type: string
+          description: User who shipped the license plate
+        shippedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the license plate was shipped
+    LicensePlateNestingChangedPayload:
+      type: object
+      required:
+        - parentLicensePlateId
+        - childLicensePlateId
+        - added
+      properties:
+        parentLicensePlateId:
+          $ref: '#/components/schemas/LicensePlateIdentifier'
+        childLicensePlateId:
+          type: string
+          pattern: ^LP[A-Z0-9]{8,12}$
+          description: Child license plate identifier affected by the change
+        added:
+          type: boolean
+          description: Indicates whether the child license plate was added (true) or removed (false)
+    PickListIdentifier:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: string
+          format: uuid
+          description: Pick list UUID value
+    WaveIdentifier:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: string
+          format: uuid
+          description: Wave UUID value
+    OrderIdentifier:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: string
+          format: uuid
+          description: Order UUID value
+    LicensePlateIdentifier:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: string
+          pattern: ^LP[A-Z0-9]{8,12}$
+          description: License plate identifier following the LP########## pattern
+    SkuCodeValue:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: string
+          description: SKU code value
+    QuantityValue:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: integer
+          format: int32
+          minimum: 0
+          description: Quantity value represented as an integer
+    BinLocation:
+      type: object
+      required:
+        - aisle
+        - rack
+        - level
+      properties:
+        aisle:
+          type: string
+          description: Aisle identifier
+        rack:
+          type: string
+          description: Rack identifier within the aisle
+        level:
+          type: string
+          description: Level or shelf identifier
+    LicensePlateType:
+      type: string
+      enum:
+        - RECEIVING
+        - PUT_AWAY
+        - PICKING
+        - SHIPPING
+        - TRANSFER
+        - CONTAINER
+        - QUALITY
+        - RETURN

@@ -1,82 +1,197 @@
 openapi: 3.0.3
 info:
   title: Warehouse Operations Service API
-  description: API for managing warehouse picking, packing, and shipping workflows
+  description: REST API for managing pick lists, packages, and mobile work execution flows
   version: 1.0.0
   contact:
     name: Paklog Warehouse Operations Team
     email: warehouse-ops@paklog.com
-
 servers:
-  - url: /api/v1/warehouse
-    description: Base API endpoint for warehouse operations
-
+  - url: /api/v1
+    description: Warehouse Operations API base path
 tags:
-  - name: PickList
-    description: Operations for managing pick lists and picking workflows
-  - name: Package
-    description: Operations for managing package creation and shipping
-  - name: Tracking
-    description: Operations for tracking warehouse operations
-
+  - name: Pick Lists
+    description: Operations for querying and updating pick list progress
+  - name: Packages
+    description: Operations for creating and confirming outbound packages
+  - name: Mobile Work
+    description: Mobile workflow orchestration, assignments, and worker telemetry
 paths:
-  /pick-lists:
-    post:
+  /picklists/{pickListId}:
+    get:
       tags:
-        - PickList
-      summary: Create a new pick list for order fulfillment
-      operationId: createPickList
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreatePickListRequest'
-      responses:
-        '201':
-          description: Pick list created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PickListResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '500':
-          $ref: '#/components/responses/ServerError'
-
-  /pick-lists/{pickListId}/confirm-pick:
-    post:
-      tags:
-        - PickList
-      summary: Confirm picking of an item from a pick list
-      operationId: confirmItemPick
+        - Pick Lists
+      summary: Get pick list by ID
+      operationId: getPickListById
       parameters:
         - name: pickListId
           in: path
           required: true
+          description: Pick list identifier
           schema:
             type: string
+            format: uuid
+      responses:
+        '200':
+          description: Pick list found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PickList'
+        '404':
+          description: Pick list not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /picklists/pickers/{pickerId}:
+    get:
+      tags:
+        - Pick Lists
+      summary: List pick lists assigned to a picker
+      operationId: listPickListsByPicker
+      parameters:
+        - name: pickerId
+          in: path
+          required: true
+          description: Picker identifier
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Pick lists retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PickList'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /picklists/status/{status}:
+    get:
+      tags:
+        - Pick Lists
+      summary: List pick lists by status
+      operationId: listPickListsByStatus
+      parameters:
+        - name: status
+          in: path
+          required: true
+          description: Pick list status filter
+          schema:
+            $ref: '#/components/schemas/PickListStatus'
+      responses:
+        '200':
+          description: Pick lists retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PickList'
+        '400':
+          description: Invalid status supplied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /picklists/{pickListId}/confirm-pick:
+    post:
+      tags:
+        - Pick Lists
+      summary: Confirm picking of an instruction on a pick list
+      operationId: confirmPickListInstruction
+      parameters:
+        - name: pickListId
+          in: path
+          required: true
+          description: Pick list identifier
+          schema:
+            type: string
+            format: uuid
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ConfirmPickRequest'
+              $ref: '#/components/schemas/ConfirmItemPickRequest'
       responses:
         '200':
-          description: Item pick confirmed successfully
+          description: Pick instruction confirmed successfully
         '400':
-          $ref: '#/components/responses/BadRequest'
+          description: Invalid pick confirmation payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
-          $ref: '#/components/responses/NotFound'
+          description: Pick list not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Pick confirmation conflicts with current state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
-          $ref: '#/components/responses/ServerError'
-
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /picklists/picker/{pickerId}/next:
+    get:
+      tags:
+        - Pick Lists
+      summary: Fetch the next pick list assigned to a picker
+      operationId: getNextPickListForPicker
+      parameters:
+        - name: pickerId
+          in: path
+          required: true
+          description: Picker identifier
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Next pick list available for the picker
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PickList'
+        '204':
+          description: No pick list currently assigned to the picker
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /packages:
     post:
       tags:
-        - Package
-      summary: Create a new package for shipping
+        - Packages
+      summary: Create a new package from a fulfillment order
       operationId: createPackage
       requestBody:
         required: true
@@ -85,83 +200,555 @@ paths:
             schema:
               $ref: '#/components/schemas/CreatePackageRequest'
       responses:
-        '201':
+        '200':
           description: Package created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PackageResponse'
+                $ref: '#/components/schemas/Package'
         '400':
-          $ref: '#/components/responses/BadRequest'
+          description: Invalid package payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
-          $ref: '#/components/responses/ServerError'
-
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /packages/{packageId}/confirm:
-    post:
+    patch:
       tags:
-        - Package
-      summary: Confirm package is ready for shipping
+        - Packages
+      summary: Confirm that a package is ready for shipping
       operationId: confirmPackage
       parameters:
         - name: packageId
           in: path
           required: true
+          description: Package identifier
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Package confirmed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Package'
+        '404':
+          description: Package not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Package cannot transition to confirmed state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /packages/order/{orderId}:
+    get:
+      tags:
+        - Packages
+      summary: Get a package by its originating order ID
+      operationId: getPackageByOrderId
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          description: Fulfillment order identifier
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Package associated with the order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Package'
+        '404':
+          description: Package not found for the order ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /mobile/work/assigned/{workerId}:
+    get:
+      tags:
+        - Mobile Work
+      summary: List work currently assigned to a worker
+      operationId: listAssignedWork
+      parameters:
+        - name: workerId
+          in: path
+          required: true
+          description: Worker identifier
           schema:
             type: string
       responses:
         '200':
-          description: Package confirmed successfully
-        '400':
-          $ref: '#/components/responses/BadRequest'
+          description: Assigned work retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MobileWorkSummary'
         '404':
-          $ref: '#/components/responses/NotFound'
+          description: Worker not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
-          $ref: '#/components/responses/ServerError'
-
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /mobile/work/available/{workerId}:
+    get:
+      tags:
+        - Mobile Work
+      summary: List work available for a worker to take
+      operationId: listAvailableWork
+      parameters:
+        - name: workerId
+          in: path
+          required: true
+          description: Worker identifier
+          schema:
+            type: string
+        - name: workType
+          in: query
+          required: false
+          description: Filter by work type
+          schema:
+            $ref: '#/components/schemas/WorkType'
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of records to return
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            default: 10
+      responses:
+        '200':
+          description: Available work retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MobileWorkSummary'
+        '400':
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /mobile/work/{workId}:
+    patch:
+      tags:
+        - Mobile Work
+      summary: Update work status for a worker assignment
+      operationId: updateWorkStatus
+      parameters:
+        - name: workId
+          in: path
+          required: true
+          description: Work identifier
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkStatusUpdateRequest'
+      responses:
+        '200':
+          description: Work updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileWorkDetail'
+        '400':
+          description: Invalid work status update payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Work item not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Work cannot transition to requested status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /mobile/work/{workId}/steps/{stepNumber}:
+    patch:
+      tags:
+        - Mobile Work
+      summary: Complete a work step for a mobile workflow
+      operationId: completeMobileWorkStep
+      parameters:
+        - name: workId
+          in: path
+          required: true
+          description: Work identifier
+          schema:
+            type: string
+            format: uuid
+        - name: stepNumber
+          in: path
+          required: true
+          description: Step sequence number
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MobileStepCompletionRequest'
+      responses:
+        '200':
+          description: Work step completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileStepCompletion'
+        '400':
+          description: Invalid work step completion payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Work item or step not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Step cannot be completed in the current state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /mobile/work/scans:
+    post:
+      tags:
+        - Mobile Work
+      summary: Process a barcode or QR scan for mobile work validation
+      operationId: createMobileScan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MobileScanRequest'
+      responses:
+        '201':
+          description: Scan processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileScanResult'
+        '400':
+          description: Invalid scan payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /mobile/work/location-validations:
+    post:
+      tags:
+        - Mobile Work
+      summary: Validate a location for a mobile work task
+      operationId: validateMobileLocation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MobileLocationValidationRequest'
+      responses:
+        '201':
+          description: Location validation created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileLocationValidation'
+        '400':
+          description: Invalid location validation payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /mobile/work/workers/{workerId}/metrics:
+    get:
+      tags:
+        - Mobile Work
+      summary: Retrieve performance metrics for a worker
+      operationId: getWorkerMetrics
+      parameters:
+        - name: workerId
+          in: path
+          required: true
+          description: Worker identifier
+          schema:
+            type: string
+        - name: period
+          in: query
+          required: false
+          description: Reporting window (e.g. TODAY, WEEK, MONTH)
+          schema:
+            type: string
+            default: TODAY
+      responses:
+        '200':
+          description: Worker metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileWorkerMetrics'
+        '404':
+          description: Worker not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /mobile/work/batch-picks:
+    post:
+      tags:
+        - Mobile Work
+      summary: Start a batch pick operation for a worker
+      operationId: createBatchPick
+      parameters:
+        - name: workerId
+          in: query
+          required: true
+          description: Worker identifier
+          schema:
+            type: string
+        - name: maxItems
+          in: query
+          required: false
+          description: Maximum items to include in the batch
+          schema:
+            type: integer
+            minimum: 1
+            default: 5
+      responses:
+        '201':
+          description: Batch pick created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileBatchPick'
+        '400':
+          description: Invalid batch pick parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /mobile/work/emergency-alerts:
+    post:
+      tags:
+        - Mobile Work
+      summary: Raise an emergency alert for a worker
+      operationId: createEmergencyAlert
+      parameters:
+        - name: workerId
+          in: query
+          required: true
+          description: Worker identifier
+          schema:
+            type: string
+        - name: reason
+          in: query
+          required: true
+          description: Emergency reason provided by the worker
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Emergency alert created successfully
+        '400':
+          description: Invalid emergency alert parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
-    CreatePickListRequest:
+    ErrorResponse:
       type: object
       required:
-        - orderId
-        - items
+        - status
+        - error
+        - message
+        - timestamp
       properties:
+        status:
+          type: integer
+          format: int32
+          description: HTTP status code associated with the error
+        error:
+          type: string
+          description: Short error code
+        message:
+          type: string
+          description: Human readable error description
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp when the error occurred
+        path:
+          type: string
+          nullable: true
+          description: Request path where the error occurred (if available)
+    PickList:
+      type: object
+      required:
+        - id
+        - orderId
+        - status
+        - instructions
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the pick list
         orderId:
           type: string
-          description: Unique identifier for the order
-        items:
+          format: uuid
+          description: Order identifier associated with the pick list
+        status:
+          $ref: '#/components/schemas/PickListStatus'
+        pickerId:
+          type: string
+          nullable: true
+          description: Identifier of the picker currently assigned to the pick list
+        instructions:
           type: array
+          description: List of pick instructions associated with the pick list
           items:
-            $ref: '#/components/schemas/PickListItem'
-
-    PickListItem:
+            $ref: '#/components/schemas/PickInstruction'
+    PickInstruction:
       type: object
       required:
         - skuCode
-        - quantity
+        - quantityToPick
+        - pickedQuantity
+        - binLocation
+        - completed
       properties:
         skuCode:
           type: string
-        quantity:
+          description: SKU code to pick
+        quantityToPick:
           type: integer
-          minimum: 1
-
-    PickListResponse:
-      type: object
-      properties:
-        pickListId:
+          format: int32
+          minimum: 0
+          description: Quantity requested for the instruction
+        pickedQuantity:
+          type: integer
+          format: int32
+          minimum: 0
+          description: Quantity already picked for the instruction
+        binLocation:
           type: string
-        orderId:
-          type: string
-        status:
-          type: string
-          enum:
-            - PENDING
-            - ASSIGNED
-            - IN_PROGRESS
-            - COMPLETED
-
-    ConfirmPickRequest:
+          description: Bin location reference in Aisle-Rack-Level format
+        completed:
+          type: boolean
+          description: Indicates whether the instruction has been completed
+    PickListStatus:
+      type: string
+      enum:
+        - PENDING
+        - ASSIGNED
+        - IN_PROGRESS
+        - COMPLETED
+        - CANCELLED
+    ConfirmItemPickRequest:
       type: object
       required:
         - skuCode
@@ -170,25 +757,41 @@ components:
       properties:
         skuCode:
           type: string
+          description: SKU code being confirmed
         quantity:
           type: integer
+          format: int32
           minimum: 1
+          description: Quantity picked
         binLocation:
           type: string
-
-    CreatePackageRequest:
+          description: Bin location where the pick occurred
+    Package:
       type: object
       required:
-        - orderId
+        - packageId
+        - status
         - items
       properties:
+        packageId:
+          type: string
+          format: uuid
+          description: Package identifier
         orderId:
           type: string
+          nullable: true
+          description: Order identifier tied to the package (if known)
+        orderType:
+          type: string
+          nullable: true
+          description: Order type of the package (placeholder until fully populated)
         items:
           type: array
+          description: Items contained in the package
           items:
             $ref: '#/components/schemas/PackageItem'
-
+        status:
+          $ref: '#/components/schemas/PackageStatus'
     PackageItem:
       type: object
       required:
@@ -197,54 +800,715 @@ components:
       properties:
         skuCode:
           type: string
+          description: Item SKU contained in the package
         quantity:
           type: integer
+          format: int32
           minimum: 1
-
-    PackageResponse:
+          description: Quantity of the item included
+    PackageStatus:
+      type: string
+      enum:
+        - PENDING
+        - CONFIRMED
+    CreatePackageRequest:
       type: object
+      required:
+        - orderType
+        - street
+        - city
+        - state
+        - postalCode
+        - country
+        - items
       properties:
-        packageId:
+        orderType:
           type: string
-        orderId:
+          description: Fulfillment order type
+        street:
           type: string
-        status:
+          description: Shipping address street line
+        city:
           type: string
-          enum:
-            - PENDING
-            - CONFIRMED
-            - SHIPPED
-
-    ErrorResponse:
-      type: object
-      properties:
-        code:
+          description: Shipping address city
+        state:
           type: string
-        message:
+          description: Shipping address state or province
+        postalCode:
           type: string
-        details:
+          description: Shipping address postal code
+        country:
+          type: string
+          description: Shipping address country code
+        items:
           type: array
+          minItems: 1
+          description: Order items to pack
+          items:
+            $ref: '#/components/schemas/CreatePackageItem'
+    CreatePackageItem:
+      type: object
+      required:
+        - skuCode
+        - quantity
+      properties:
+        skuCode:
+          type: string
+          description: Item SKU to include in the package
+        quantity:
+          type: integer
+          format: int32
+          minimum: 1
+          description: Quantity requested for the item
+    MobileWorkSummary:
+      type: object
+      required:
+        - workId
+        - workType
+        - status
+        - priority
+        - quantity
+        - totalSteps
+        - completedSteps
+        - urgent
+      properties:
+        workId:
+          type: string
+          description: Work identifier
+        workType:
+          $ref: '#/components/schemas/WorkType'
+        status:
+          $ref: '#/components/schemas/WorkStatus'
+        priority:
+          $ref: '#/components/schemas/Priority'
+        location:
+          type: string
+          nullable: true
+          description: Location associated with the work item
+        item:
+          type: string
+          nullable: true
+          description: Item associated with the work item
+        quantity:
+          type: integer
+          format: int32
+          description: Quantity associated with the task
+        assignedTo:
+          type: string
+          nullable: true
+          description: Worker assigned to the task
+        assignedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the work was assigned
+        dueDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Requested completion timestamp
+        totalSteps:
+          type: integer
+          format: int32
+          description: Total number of steps in the workflow
+        completedSteps:
+          type: integer
+          format: int32
+          description: Number of steps already completed
+        urgent:
+          type: boolean
+          description: Indicates whether the work is marked as urgent
+        description:
+          type: string
+          nullable: true
+          description: Human readable work description
+    MobileWorkDetail:
+      type: object
+      required:
+        - workId
+        - workType
+        - status
+        - priority
+        - quantity
+        - steps
+        - currentStepNumber
+        - urgent
+      properties:
+        workId:
+          type: string
+          description: Work identifier
+        workType:
+          $ref: '#/components/schemas/WorkType'
+        status:
+          $ref: '#/components/schemas/WorkStatus'
+        priority:
+          $ref: '#/components/schemas/Priority'
+        location:
+          type: string
+          nullable: true
+          description: Current location where the work should be performed
+        item:
+          type: string
+          nullable: true
+          description: Item identifier
+        itemDescription:
+          type: string
+          nullable: true
+          description: Item description for display
+        quantity:
+          type: integer
+          format: int32
+          description: Quantity associated with the task
+        assignedTo:
+          type: string
+          nullable: true
+          description: Worker identifier currently assigned
+        assignedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp for when the worker was assigned
+        startedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when work started
+        dueDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Due date for the work
+        steps:
+          type: array
+          description: Steps that compose the work
+          items:
+            $ref: '#/components/schemas/MobileStep'
+        currentStepNumber:
+          type: integer
+          format: int32
+          description: One-based index of the current step
+        urgent:
+          type: boolean
+          description: Indicates whether the work is marked as urgent
+        description:
+          type: string
+          nullable: true
+        attributes:
+          type: object
+          nullable: true
+          additionalProperties: true
+          description: Additional attributes for the work item
+        instructions:
+          type: array
+          nullable: true
           items:
             type: string
-
-  responses:
-    BadRequest:
-      description: Invalid request parameters
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-
-    NotFound:
-      description: Requested resource not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-
-    ServerError:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
+          description: List of textual instructions for the worker
+        nextAction:
+          type: string
+          nullable: true
+          description: Suggested next action for the worker
+    MobileStep:
+      type: object
+      required:
+        - stepNumber
+        - name
+        - instruction
+        - completed
+      properties:
+        stepNumber:
+          type: integer
+          format: int32
+          description: Step sequence index
+        name:
+          type: string
+          description: Short display name for the step
+        instruction:
+          type: string
+          description: Instruction text for the worker
+        location:
+          type: string
+          nullable: true
+          description: Location to perform the step
+        action:
+          type: string
+          nullable: true
+          description: Action keyword associated with the step
+        parameters:
+          type: object
+          nullable: true
+          additionalProperties: true
+          description: Parameter map for the step execution
+        completed:
+          type: boolean
+          description: Indicates whether the step is completed
+        skippable:
+          type: boolean
+          nullable: true
+          description: Indicates whether the step can be skipped
+        requiresScan:
+          type: boolean
+          nullable: true
+          description: Indicates whether the step requires a scan validation
+        expectedScans:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: Expected scan values for validation
+        validationRule:
+          type: string
+          nullable: true
+          description: Validation rule identifier applied to the step
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the step was completed
+        completedBy:
+          type: string
+          nullable: true
+          description: Worker who completed the step
+        notes:
+          type: string
+          nullable: true
+          description: Additional notes recorded for the step
+        estimatedDurationMinutes:
+          type: integer
+          format: int32
+          nullable: true
+          description: Estimated minutes to complete the step
+    WorkStatusUpdateRequest:
+      type: object
+      required:
+        - status
+        - workerId
+      properties:
+        status:
+          type: string
+          description: Desired work status transition
+          enum:
+            - IN_PROGRESS
+            - SUSPENDED
+            - COMPLETED
+        workerId:
+          type: string
+          description: Worker requesting the status change
+        reason:
+          type: string
+          nullable: true
+          description: Optional reason for the status change
+    MobileStepCompletionRequest:
+      type: object
+      required:
+        - workerId
+      properties:
+        workerId:
+          type: string
+          description: Worker completing the step
+        scannedCodes:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: Codes captured during scanning
+        parameters:
+          type: object
+          nullable: true
+          additionalProperties: true
+          description: Step-specific parameter overrides
+        notes:
+          type: string
+          nullable: true
+          description: Notes entered by the worker
+        forceComplete:
+          type: boolean
+          nullable: true
+          description: Indicates whether to force completion despite validation failures
+        actualQuantity:
+          type: integer
+          format: int32
+          nullable: true
+          description: Actual quantity handled during the step
+        actualLocation:
+          type: string
+          nullable: true
+          description: Actual location confirmed during the step
+    MobileStepCompletion:
+      type: object
+      required:
+        - success
+        - completedStepNumber
+        - workCompleted
+      properties:
+        success:
+          type: boolean
+          description: Indicates whether the step completion succeeded
+        message:
+          type: string
+          nullable: true
+          description: Outcome message for the worker
+        completedStepNumber:
+          type: integer
+          format: int32
+          description: Step number that was completed
+        nextStepNumber:
+          type: integer
+          format: int32
+          nullable: true
+          description: Next step to execute, if any
+        workCompleted:
+          type: boolean
+          description: Indicates whether the entire work was completed
+        warnings:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: Non-blocking warnings raised during completion
+        validationErrors:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: Validation errors that occurred
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp for completion
+        nextAction:
+          type: string
+          nullable: true
+          description: Suggested next action (e.g. NEXT_STEP, COMPLETE_WORK, RETRY)
+    MobileBatchPick:
+      type: object
+      required:
+        - batchId
+        - workerId
+        - assignedWork
+        - totalItems
+        - status
+      properties:
+        batchId:
+          type: string
+          description: Batch pick identifier
+        workerId:
+          type: string
+          description: Worker assigned to the batch
+        assignedWork:
+          type: array
+          description: Workmaking up the batch pick
+          items:
+            $ref: '#/components/schemas/MobileWorkSummary'
+        optimizedRoute:
+          type: string
+          nullable: true
+          description: Optimized travel route description
+        routeStops:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: Ordered locations included in the route
+        totalItems:
+          type: integer
+          format: int32
+          description: Total number of items in the batch
+        estimatedDurationMinutes:
+          type: integer
+          format: int32
+          nullable: true
+          description: Estimated duration to complete the batch
+        batchAttributes:
+          type: object
+          nullable: true
+          additionalProperties: true
+          description: Additional attributes for the batch
+        specialInstructions:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: Additional guidance for the batch
+        status:
+          type: string
+          description: Current status of the batch pick
+    MobileScanRequest:
+      type: object
+      required:
+        - workerId
+        - scannedCode
+      properties:
+        workerId:
+          type: string
+          description: Worker submitting the scan
+        workId:
+          type: string
+          nullable: true
+          description: Work identifier related to the scan
+        stepNumber:
+          type: integer
+          format: int32
+          nullable: true
+          description: Step number where the scan occurred
+        scannedCode:
+          type: string
+          description: Value captured by the scanner
+        scanType:
+          type: string
+          nullable: true
+          description: Scan technology used
+          enum:
+            - BARCODE
+            - QR_CODE
+            - RFID
+        expectedType:
+          type: string
+          nullable: true
+          description: Expected classification of the scan
+          enum:
+            - ITEM
+            - LOCATION
+            - LICENSE_PLATE
+        context:
+          type: string
+          nullable: true
+          description: Additional context supplied for validation
+    MobileScanResult:
+      type: object
+      required:
+        - valid
+        - scannedValue
+      properties:
+        valid:
+          type: boolean
+          description: Indicates whether the scan was valid
+        scannedValue:
+          type: string
+          description: Original value that was scanned
+        resolvedValue:
+          type: string
+          nullable: true
+          description: Value resolved by the system after validation
+        type:
+          type: string
+          nullable: true
+          description: Classification of the scanned entity
+          enum:
+            - ITEM
+            - LOCATION
+            - LICENSE_PLATE
+        message:
+          type: string
+          nullable: true
+          description: Informational message returned to the client
+        additionalData:
+          type: object
+          nullable: true
+          additionalProperties: true
+          description: Additional context to support the scan result
+        warnings:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: Warnings generated during validation
+        suggestions:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: Suggestions when the scan could not be validated
+        requiresConfirmation:
+          type: boolean
+          nullable: true
+          description: Indicates whether worker confirmation is required
+        confirmationMessage:
+          type: string
+          nullable: true
+          description: Message to show when confirmation is required
+    MobileLocationValidationRequest:
+      type: object
+      required:
+        - workerId
+        - location
+      properties:
+        workerId:
+          type: string
+          description: Worker requesting the validation
+        workId:
+          type: string
+          nullable: true
+          description: Work identifier associated with the validation
+        stepNumber:
+          type: integer
+          format: int32
+          nullable: true
+          description: Step number associated with the validation
+        location:
+          type: string
+          description: Location to validate
+        workType:
+          type: string
+          nullable: true
+          description: Work type context for the validation
+        item:
+          type: string
+          nullable: true
+          description: Item related to the validation
+        quantity:
+          type: integer
+          format: int32
+          nullable: true
+          description: Quantity involved in the validation
+    MobileLocationValidation:
+      type: object
+      required:
+        - valid
+        - location
+      properties:
+        valid:
+          type: boolean
+          description: Indicates whether the location is valid
+        location:
+          type: string
+          description: Location evaluated
+        message:
+          type: string
+          nullable: true
+          description: Message describing the validation outcome
+        suitabilityScore:
+          type: number
+          format: double
+          nullable: true
+          description: Suitability score assigned during validation
+        violations:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: Validation rules that were violated
+        warnings:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: Non-blocking warnings
+        locationAttributes:
+          type: object
+          nullable: true
+          additionalProperties: true
+          description: Location metadata returned from validation
+        suggestions:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: Suggested alternative locations or actions
+        requiresConfirmation:
+          type: boolean
+          nullable: true
+          description: Indicates whether supervisor confirmation is required
+    MobileWorkerMetrics:
+      type: object
+      required:
+        - workerId
+        - period
+        - completedTasks
+        - totalTasks
+        - completionRate
+        - averageTaskDurationMinutes
+        - performanceScore
+        - totalItemsPicked
+        - totalItemsPacked
+        - totalItemsCounted
+        - accuracyRate
+      properties:
+        workerId:
+          type: string
+          description: Worker identifier
+        period:
+          type: string
+          description: Period for which the metrics apply
+        completedTasks:
+          type: integer
+          format: int32
+          description: Number of tasks completed in the period
+        totalTasks:
+          type: integer
+          format: int32
+          description: Total tasks assigned during the period
+        completionRate:
+          type: number
+          format: double
+          description: Completion rate as a percentage value (0-100)
+        averageTaskDurationMinutes:
+          type: number
+          format: double
+          description: Average task duration in minutes
+        performanceScore:
+          type: number
+          format: double
+          description: Calculated performance score
+        totalItemsPicked:
+          type: integer
+          format: int32
+          description: Total number of items picked
+        totalItemsPacked:
+          type: integer
+          format: int32
+          description: Total number of items packed
+        totalItemsCounted:
+          type: integer
+          format: int32
+          description: Total number of items counted
+        accuracyRate:
+          type: number
+          format: double
+          description: Accuracy rate represented as a percentage value (0-100)
+        lastActivity:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp of the worker's last activity
+        taskTypeBreakdown:
+          type: object
+          nullable: true
+          additionalProperties:
+            type: integer
+            format: int32
+          description: Task counts broken down by work type
+        performanceByType:
+          type: object
+          nullable: true
+          additionalProperties:
+            type: number
+            format: double
+          description: Performance scores broken down by work type
+    WorkType:
+      type: string
+      enum:
+        - PICK
+        - PUT
+        - MOVE
+        - COUNT
+        - PACK
+        - REPLENISH
+    WorkStatus:
+      type: string
+      enum:
+        - CREATED
+        - RELEASED
+        - ASSIGNED
+        - IN_PROGRESS
+        - COMPLETED
+        - CANCELLED
+    Priority:
+      type: string
+      enum:
+        - LOW
+        - NORMAL
+        - HIGH
+        - URGENT
+        - CRITICAL
