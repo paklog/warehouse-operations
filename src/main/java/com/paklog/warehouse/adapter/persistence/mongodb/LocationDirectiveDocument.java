@@ -114,8 +114,8 @@ public class LocationDirectiveDocument {
 
         public LocationConstraintDocument(LocationConstraint constraint) {
             this.type = constraint.getType().name();
-            this.parameter = constraint.getParameter();
-            this.value = constraint.getValue();
+            this.parameter = constraint.getParameter() != null ? constraint.getParameter().toString() : "";
+            this.value = constraint.getValue() != null ? constraint.getValue().toString() : "";
             this.enabled = constraint.isEnabled();
         }
 

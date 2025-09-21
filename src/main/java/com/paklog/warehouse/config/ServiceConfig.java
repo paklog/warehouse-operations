@@ -13,10 +13,13 @@ import com.paklog.warehouse.domain.workload.ContinuousStrategy;
 import com.paklog.warehouse.domain.workload.IWorkloadReleaseStrategy;
 import com.paklog.warehouse.domain.workload.WorkloadOrchestrator;
 import com.paklog.warehouse.domain.quality.*;
+import com.paklog.warehouse.domain.quality.DefaultQualityWorkIntegrationService;
+import com.paklog.warehouse.domain.quality.DefaultQualityHoldService;
 import com.paklog.warehouse.domain.location.*;
 import com.paklog.warehouse.domain.licenseplate.*;
 import com.paklog.warehouse.domain.work.WorkRepository;
 import com.paklog.warehouse.domain.work.WorkTemplateRepository;
+import com.paklog.warehouse.domain.putwall.PutWallService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -68,14 +71,14 @@ public class ServiceConfig {
 
     @Bean
     public QualityHoldService qualityHoldService(QualityHoldRepository holdRepository) {
-        return new QualityHoldService(holdRepository);
+        return new DefaultQualityHoldService(holdRepository);
     }
 
     @Bean
     public QualityWorkIntegrationService qualityWorkIntegrationService(
             QualityInspectionRepository inspectionRepository,
             WorkRepository workRepository) {
-        return new QualityWorkIntegrationService(inspectionRepository, workRepository);
+        return new DefaultQualityWorkIntegrationService(inspectionRepository, workRepository);
     }
 
     // Location Domain Services
@@ -87,7 +90,7 @@ public class ServiceConfig {
     // License Plate Domain Services
     @Bean
     public DefaultLicensePlateGenerator licensePlateGenerator() {
-        return new DefaultLicensePlateGenerator("LP", 1);
+        return new DefaultLicensePlateGenerator();
     }
 
     @Bean
@@ -95,5 +98,11 @@ public class ServiceConfig {
             LicensePlateRepository licensePlateRepository,
             LicensePlateGenerator licensePlateGenerator) {
         return new LicensePlateService(licensePlateRepository, licensePlateGenerator);
+    }
+
+    // Put Wall Domain Services
+    @Bean
+    public PutWallService putWallService() {
+        return new PutWallService();
     }
 }

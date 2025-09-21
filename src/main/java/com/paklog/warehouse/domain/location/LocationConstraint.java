@@ -14,12 +14,20 @@ public class LocationConstraint {
         this(type, operator, value, new HashMap<>());
     }
 
-    public LocationConstraint(LocationConstraintType type, String operator, Object value, 
+    public LocationConstraint(LocationConstraintType type, String operator, Object value,
                             Map<String, Object> parameters) {
         this.type = Objects.requireNonNull(type, "Constraint type cannot be null");
         this.operator = Objects.requireNonNull(operator, "Operator cannot be null");
         this.value = Objects.requireNonNull(value, "Value cannot be null");
         this.parameters = new HashMap<>(Objects.requireNonNull(parameters, "Parameters cannot be null"));
+    }
+
+    // Constructor for document compatibility
+    public LocationConstraint(LocationConstraintType type, Object parameter, Object value, boolean enabled) {
+        this.type = Objects.requireNonNull(type, "Constraint type cannot be null");
+        this.operator = parameter != null ? parameter.toString() : "=";
+        this.value = Objects.requireNonNull(value, "Value cannot be null");
+        this.parameters = new HashMap<>();
     }
 
     public LocationConstraintType getType() {
@@ -40,6 +48,15 @@ public class LocationConstraint {
 
     public Object getParameter(String key) {
         return parameters.get(key);
+    }
+
+    // For document compatibility
+    public Object getParameter() {
+        return operator; // Use operator as the parameter for backwards compatibility
+    }
+
+    public boolean isEnabled() {
+        return true; // Default enabled, could be configurable
     }
 
     public String getValueAsString() {

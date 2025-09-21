@@ -30,16 +30,17 @@ class QuantityTest {
             // Act & Assert
             assertThatThrownBy(() -> Quantity.of(-1))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Quantity must be positive");
+                .hasMessageContaining("Quantity cannot be negative");
         }
 
         @Test
-        @DisplayName("Should throw exception for zero quantity")
-        void shouldThrowExceptionForZeroQuantity() {
-            // Act & Assert
-            assertThatThrownBy(() -> Quantity.of(0))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Quantity must be positive");
+        @DisplayName("Should allow zero quantity")
+        void shouldAllowZeroQuantity() {
+            // Act
+            Quantity quantity = Quantity.of(0);
+
+            // Assert
+            assertThat(quantity.getValue()).isEqualTo(0);
         }
     }
 

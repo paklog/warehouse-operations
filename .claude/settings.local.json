@@ -11,7 +11,12 @@
       "Bash(timeout 10s mvn spring-boot:run:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(java:*)",
+      "Read(//usr/libexec/**)",
+      "Bash(brew list:*)",
+      "Bash(export PATH=/opt/homebrew/opt/openjdk@21/bin:$PATH)",
+      "Bash(export:*)"
     ],
     "deny": [],
     "ask": []

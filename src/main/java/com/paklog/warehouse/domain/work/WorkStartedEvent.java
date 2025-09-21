@@ -37,6 +37,14 @@ public class WorkStartedEvent implements DomainEvent {
         return assignedTo;
     }
 
+    public String getStartedBy() {
+        return assignedTo;  // Alias for getAssignedTo
+    }
+
+    public Instant getStartedAt() {
+        return occurredAt;  // Alias for getOccurredAt
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

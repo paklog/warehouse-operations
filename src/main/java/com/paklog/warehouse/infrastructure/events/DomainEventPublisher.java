@@ -25,6 +25,10 @@ public class DomainEventPublisher {
         this.eventSerializer = eventSerializer;
     }
 
+    public void publish(DomainEvent event) {
+        publishEvent(event);
+    }
+
     public void publishEvent(DomainEvent event) {
         logger.debug("Publishing domain event: {}", event.getClass().getSimpleName());
         

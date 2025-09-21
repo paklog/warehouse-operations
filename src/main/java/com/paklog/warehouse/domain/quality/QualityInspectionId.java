@@ -21,6 +21,10 @@ public class QualityInspectionId {
         return new QualityInspectionId(value);
     }
 
+    public static QualityInspectionId of(String value) {
+        return new QualityInspectionId(value);
+    }
+
     public String getValue() {
         return value;
     }

@@ -49,7 +49,7 @@ class MobileWorkflowServiceTest {
         service = new MobileWorkflowService(workRepository, barcodeScanProcessor, 
                                           locationDirectiveService, notificationService);
         
-        testWorkId = new WorkId("WORK-001");
+        testWorkId = WorkId.generate();
         testWork = createTestWork(testWorkId, WorkStatus.ASSIGNED);
     }
 
@@ -81,7 +81,7 @@ class MobileWorkflowServiceTest {
         WorkType workType = WorkType.PICK;
         int limit = 5;
         
-        Work availableWork = createTestWork(new WorkId("WORK-002"), WorkStatus.RELEASED);
+        Work availableWork = createTestWork(WorkId.generate(), WorkStatus.RELEASED);
         availableWork.assignTo(null); // Unassigned
         
         when(workRepository.findByWorkTypeAndStatus(workType, WorkStatus.RELEASED))
@@ -283,8 +283,8 @@ class MobileWorkflowServiceTest {
         int maxItems = 5;
         
         List<Work> availableWork = Arrays.asList(
-            createTestWork(new WorkId("WORK-001"), WorkStatus.RELEASED),
-            createTestWork(new WorkId("WORK-002"), WorkStatus.RELEASED)
+            createTestWork(WorkId.generate(), WorkStatus.RELEASED),
+            createTestWork(WorkId.generate(), WorkStatus.RELEASED)
         );
         
         when(workRepository.findByWorkTypeAndStatus(WorkType.PICK, WorkStatus.RELEASED))

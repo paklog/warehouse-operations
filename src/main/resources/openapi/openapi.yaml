@@ -16,6 +16,10 @@ tags:
     description: Operations for creating and confirming outbound packages
   - name: Mobile Work
     description: Mobile workflow orchestration, assignments, and worker telemetry
+  - name: Put Walls
+    description: Put wall operations for light-directed sortation and order consolidation
+  - name: Put Wall Metrics
+    description: Put wall performance metrics and KPI tracking
 paths:
   /picklists/{pickListId}:
     get:
@@ -647,6 +651,420 @@ paths:
           description: Emergency alert created successfully
         '400':
           description: Invalid emergency alert parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /putwalls:
+    post:
+      tags:
+        - Put Walls
+      summary: Create a new put wall
+      operationId: createPutWall
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePutWallRequest'
+      responses:
+        '201':
+          description: Put wall created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PutWall'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - Put Walls
+      summary: Get all put walls
+      operationId: getAllPutWalls
+      responses:
+        '200':
+          description: Put walls retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PutWall'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /putwalls/{putWallId}:
+    get:
+      tags:
+        - Put Walls
+      summary: Get put wall details
+      operationId: getPutWall
+      parameters:
+        - name: putWallId
+          in: path
+          required: true
+          description: Put wall ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Put wall details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PutWall'
+        '404':
+          description: Put wall not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /putwalls/{putWallId}/assignments:
+    post:
+      tags:
+        - Put Walls
+      summary: Assign order to slot
+      operationId: assignOrderToSlot
+      parameters:
+        - name: putWallId
+          in: path
+          required: true
+          description: Put wall ID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignOrderRequest'
+      responses:
+        '200':
+          description: Order assigned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlotAssignmentResponse'
+        '404':
+          description: Put wall not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: No available slots
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlotAssignmentResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /putwalls/{putWallId}/scan:
+    post:
+      tags:
+        - Put Walls
+      summary: Scan item for sortation
+      operationId: scanItemForSortation
+      parameters:
+        - name: putWallId
+          in: path
+          required: true
+          description: Put wall ID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScanItemRequest'
+      responses:
+        '200':
+          description: Sortation target determined
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SortationResponse'
+        '404':
+          description: Put wall not found or no target slot found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SortationResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /putwalls/{putWallId}/slots/{slotId}/items:
+    post:
+      tags:
+        - Put Walls
+      summary: Confirm item placement
+      operationId: confirmPutInSlot
+      parameters:
+        - name: putWallId
+          in: path
+          required: true
+          description: Put wall ID
+          schema:
+            type: string
+            format: uuid
+        - name: slotId
+          in: path
+          required: true
+          description: Slot ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaceItemRequest'
+      responses:
+        '200':
+          description: Item placed successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          description: Invalid placement
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: Put wall or slot not found
+          content:
+            text/plain:
+              schema:
+                type: string
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /putwalls/{putWallId}/slots/{slotId}:
+    delete:
+      tags:
+        - Put Walls
+      summary: Release slot
+      operationId: releaseSlot
+      parameters:
+        - name: putWallId
+          in: path
+          required: true
+          description: Put wall ID
+          schema:
+            type: string
+            format: uuid
+        - name: slotId
+          in: path
+          required: true
+          description: Slot ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Slot released successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          description: Slot cannot be released
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: Put wall or slot not found
+          content:
+            text/plain:
+              schema:
+                type: string
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /putwalls/{putWallId}/ready-slots:
+    get:
+      tags:
+        - Put Walls
+      summary: Get ready for pack slots
+      operationId: getReadyForPackSlots
+      parameters:
+        - name: putWallId
+          in: path
+          required: true
+          description: Put wall ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Ready slots retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '404':
+          description: Put wall not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /putwalls/metrics/{putWallId}:
+    get:
+      tags:
+        - Put Wall Metrics
+      summary: Get put wall metrics
+      operationId: getPutWallMetrics
+      parameters:
+        - name: putWallId
+          in: path
+          required: true
+          description: Put wall ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PutWallMetrics'
+        '404':
+          description: Put wall not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Put Wall Metrics
+      summary: Clear put wall metrics
+      operationId: clearPutWallMetrics
+      parameters:
+        - name: putWallId
+          in: path
+          required: true
+          description: Put wall ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Metrics cleared successfully
+        '404':
+          description: Put wall not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /putwalls/metrics:
+    get:
+      tags:
+        - Put Wall Metrics
+      summary: Get all put wall metrics
+      operationId: getAllPutWallMetrics
+      responses:
+        '200':
+          description: All metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PutWallMetrics'
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /putwalls/metrics/{putWallId}/performance-report:
+    get:
+      tags:
+        - Put Wall Metrics
+      summary: Get performance report
+      operationId: getPutWallPerformanceReport
+      parameters:
+        - name: putWallId
+          in: path
+          required: true
+          description: Put wall ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Performance report generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PutWallPerformanceReport'
+        '404':
+          description: Put wall not found
           content:
             application/json:
               schema:
@@ -1512,3 +1930,261 @@ components:
         - HIGH
         - URGENT
         - CRITICAL
+    # Put Wall Schemas
+    PutWall:
+      type: object
+      required:
+        - putWallId
+        - location
+        - capacity
+        - availableCapacity
+        - slots
+      properties:
+        putWallId:
+          type: string
+          format: uuid
+          description: Put wall identifier
+        location:
+          type: string
+          description: Put wall location in warehouse
+        capacity:
+          type: integer
+          format: int32
+          description: Total number of slots in the put wall
+        availableCapacity:
+          type: integer
+          format: int32
+          description: Number of available slots
+        slots:
+          type: array
+          description: List of slots in the put wall
+          items:
+            $ref: '#/components/schemas/PutWallSlot'
+    PutWallSlot:
+      type: object
+      required:
+        - slotId
+        - status
+        - itemsRequired
+        - itemsPlaced
+      properties:
+        slotId:
+          type: string
+          description: Slot identifier
+        status:
+          $ref: '#/components/schemas/PutWallSlotStatus'
+        assignedOrderId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Order assigned to this slot
+        itemsRequired:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int32
+          description: Required items for the order (SKU -> quantity)
+        itemsPlaced:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int32
+          description: Items already placed in the slot (SKU -> quantity)
+    PutWallSlotStatus:
+      type: string
+      enum:
+        - FREE
+        - IN_PROGRESS
+        - COMPLETE
+        - READY_FOR_PACK
+    CreatePutWallRequest:
+      type: object
+      required:
+        - slotIds
+        - location
+      properties:
+        slotIds:
+          type: array
+          minItems: 1
+          items:
+            type: string
+          description: List of slot identifiers
+        location:
+          type: string
+          description: Put wall location
+    AssignOrderRequest:
+      type: object
+      required:
+        - orderId
+        - requiredItems
+      properties:
+        orderId:
+          type: string
+          format: uuid
+          description: Order identifier
+        requiredItems:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int32
+            minimum: 1
+          description: Required items for the order (SKU -> quantity)
+    ScanItemRequest:
+      type: object
+      required:
+        - skuCode
+        - quantity
+      properties:
+        skuCode:
+          type: string
+          description: SKU code being scanned
+        quantity:
+          type: integer
+          format: int32
+          minimum: 1
+          description: Quantity being sorted
+    PlaceItemRequest:
+      type: object
+      required:
+        - skuCode
+        - quantity
+      properties:
+        skuCode:
+          type: string
+          description: SKU code being placed
+        quantity:
+          type: integer
+          format: int32
+          minimum: 1
+          description: Quantity being placed
+    SlotAssignmentResponse:
+      type: object
+      required:
+        - orderId
+        - message
+      properties:
+        slotId:
+          type: string
+          nullable: true
+          description: Assigned slot ID (null if assignment failed)
+        orderId:
+          type: string
+          format: uuid
+          description: Order ID
+        message:
+          type: string
+          description: Assignment result message
+    SortationResponse:
+      type: object
+      required:
+        - quantityNeeded
+        - message
+      properties:
+        targetSlotId:
+          type: string
+          nullable: true
+          description: Target slot ID for the scanned item
+        orderId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Order ID requiring the scanned item
+        quantityNeeded:
+          type: integer
+          format: int32
+          description: Quantity needed for the order
+        message:
+          type: string
+          description: Sortation result message
+    PutWallMetrics:
+      type: object
+      required:
+        - putWallId
+        - totalOrdersProcessed
+        - totalItemsPlaced
+        - averageOrderCompletionTimeMinutes
+        - throughputOrdersPerHour
+        - utilizationPercentage
+        - currentActiveOrders
+        - lastUpdated
+      properties:
+        putWallId:
+          type: string
+          format: uuid
+          description: Put wall identifier
+        totalOrdersProcessed:
+          type: integer
+          format: int32
+          description: Total number of orders processed
+        totalItemsPlaced:
+          type: integer
+          format: int32
+          description: Total number of items placed
+        averageOrderCompletionTimeMinutes:
+          type: number
+          format: double
+          description: Average time to complete an order in minutes
+        throughputOrdersPerHour:
+          type: number
+          format: double
+          description: Orders processed per hour
+        utilizationPercentage:
+          type: number
+          format: double
+          description: Put wall utilization percentage
+        currentActiveOrders:
+          type: integer
+          format: int32
+          description: Number of currently active orders
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Timestamp when metrics were last updated
+    PutWallPerformanceReport:
+      type: object
+      required:
+        - putWallId
+        - totalOrdersProcessed
+        - totalItemsPlaced
+        - averageOrderCompletionTimeMinutes
+        - throughputOrdersPerHour
+        - utilizationPercentage
+        - currentActiveOrders
+        - efficiencyScore
+        - recommendations
+      properties:
+        putWallId:
+          type: string
+          format: uuid
+          description: Put wall identifier
+        totalOrdersProcessed:
+          type: integer
+          format: int32
+          description: Total number of orders processed
+        totalItemsPlaced:
+          type: integer
+          format: int32
+          description: Total number of items placed
+        averageOrderCompletionTimeMinutes:
+          type: number
+          format: double
+          description: Average time to complete an order in minutes
+        throughputOrdersPerHour:
+          type: number
+          format: double
+          description: Orders processed per hour
+        utilizationPercentage:
+          type: number
+          format: double
+          description: Put wall utilization percentage
+        currentActiveOrders:
+          type: integer
+          format: int32
+          description: Number of currently active orders
+        efficiencyScore:
+          type: number
+          format: double
+          description: Calculated efficiency score (0-100)
+        recommendations:
+          type: string
+          description: Performance recommendations

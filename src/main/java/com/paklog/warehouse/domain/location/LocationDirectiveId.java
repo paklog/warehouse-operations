@@ -21,6 +21,10 @@ public class LocationDirectiveId {
         return new LocationDirectiveId(value.trim());
     }
 
+    public static LocationDirectiveId of(String value) {
+        return fromString(value);
+    }
+
     public String getValue() {
         return value;
     }

@@ -6,8 +6,8 @@ public class Quantity {
     private final int value;
 
     public Quantity(int value) {
-        if (value <= 0) {
-            throw new IllegalArgumentException("Quantity must be positive");
+        if (value < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative");
         }
         this.value = value;
     }
@@ -26,8 +26,8 @@ public class Quantity {
 
     public Quantity subtract(Quantity other) {
         int result = this.value - other.value;
-        if (result <= 0) {
-            throw new IllegalArgumentException("Subtraction would result in non-positive quantity");
+        if (result < 0) {
+            throw new IllegalArgumentException("Subtraction would result in negative quantity");
         }
         return new Quantity(result);
     }

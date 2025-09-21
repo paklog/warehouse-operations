@@ -118,23 +118,17 @@ class PackagingDomainServiceTest {
         }
 
         @Test
-        @DisplayName("Should reject package with invalid quantities")
+        @DisplayName("Should reject creation of packed items with invalid quantities")
         void shouldRejectPackageWithInvalidQuantities() {
-            // Arrange
-            UUID packageId = UUID.randomUUID();
-            List<PackedItem> invalidItems = Arrays.asList(
-                new PackedItem(SkuCode.of("SKU-001"), -1),
-                new PackedItem(SkuCode.of("SKU-002"), 0)
-            );
-            Package pkg = new Package(packageId, invalidItems);
+            // Act & Assert - negative quantity
+            assertThatThrownBy(() -> new PackedItem(SkuCode.of("SKU-001"), -1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Quantity must be positive");
 
-            // Act
-            PackagingDomainService.PackageValidationResult result = packagingDomainService.validatePackageContents(pkg);
-
-            // Assert
-            assertThat(result.isValid()).isFalse();
-            assertThat(result.getViolations()).hasSize(2);
-            assertThat(result.getViolations()).allMatch(violation -> violation.contains("Invalid quantity"));
+            // Act & Assert - zero quantity
+            assertThatThrownBy(() -> new PackedItem(SkuCode.of("SKU-002"), 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Quantity must be positive");
         }
 
         @Test

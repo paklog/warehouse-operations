@@ -19,12 +19,12 @@ public class PackagingDomainService {
      * Validates if an order can be packaged
      */
     public boolean canPackageOrder(FulfillmentOrder order, PickList pickList) {
-        logger.debug("Validating packaging for order: {}", order.getOrderId());
-        
         if (order == null) {
             logger.warn("Cannot package null order");
             return false;
         }
+
+        logger.debug("Validating packaging for order: {}", order.getOrderId());
         
         if (pickList == null) {
             logger.warn("Cannot package order {} - no associated pick list", order.getOrderId());

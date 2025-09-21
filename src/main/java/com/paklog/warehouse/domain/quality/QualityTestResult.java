@@ -11,8 +11,9 @@ public class QualityTestResult {
     private final String notes;
     private final Instant measuredAt;
     private final String measuredBy;
+    private final String expectedValue;
 
-    public QualityTestResult(String actualValue, boolean passed, String unit, 
+    public QualityTestResult(String actualValue, boolean passed, String unit,
                            QualityTestType testType, String notes, String measuredBy) {
         this.actualValue = actualValue;
         this.passed = passed;
@@ -21,6 +22,20 @@ public class QualityTestResult {
         this.notes = notes;
         this.measuredAt = Instant.now();
         this.measuredBy = measuredBy;
+        this.expectedValue = null;
+    }
+
+    // Constructor for document deserialization
+    public QualityTestResult(QualityTestType testType, String actualValue, String expectedValue,
+                           boolean passed, String unit, String notes, Instant testedAt) {
+        this.testType = Objects.requireNonNull(testType, "Test type cannot be null");
+        this.actualValue = actualValue;
+        this.expectedValue = expectedValue;
+        this.passed = passed;
+        this.unit = unit;
+        this.notes = notes;
+        this.measuredAt = testedAt;
+        this.measuredBy = null;
     }
 
     public static QualityTestResult pass(String actualValue, QualityTestType testType, String measuredBy) {
@@ -48,7 +63,7 @@ public class QualityTestResult {
     public String getMeasuredBy() { return measuredBy; }
     
     // Additional method that may be needed
-    public String getExpectedValue() { return null; }  // Default implementation, override in subclasses if needed
+    public String getExpectedValue() { return expectedValue; }
 
     @Override
     public String toString() {

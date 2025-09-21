@@ -20,6 +20,16 @@ public class QualityToleranceRange {
         return value >= minValue && value <= maxValue;
     }
 
+    public boolean isWithinTolerance(String expectedValue, String actualValue) {
+        try {
+            double expected = Double.parseDouble(expectedValue);
+            double actual = Double.parseDouble(actualValue);
+            return isWithinRange(actual);
+        } catch (NumberFormatException e) {
+            return expectedValue.equals(actualValue);
+        }
+    }
+
     public double getVariance(double actualValue) {
         if (actualValue < minValue) {
             return minValue - actualValue;

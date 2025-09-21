@@ -5,82 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-// Quality Decision
-enum QualityDecision {
-    APPROVED("Approved for use/shipment"),
-    REJECTED("Rejected - cannot be used"),
-    CONDITIONAL_APPROVAL("Approved with conditions"),
-    REWORK_REQUIRED("Requires rework"),
-    QUARANTINE("Move to quarantine");
-
-    private final String description;
-
-    QualityDecision(String description) {
-        this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public boolean isApproved() {
-        return this == APPROVED || this == CONDITIONAL_APPROVAL;
-    }
-
-    public boolean isRejected() {
-        return this == REJECTED || this == QUARANTINE;
-    }
-}
-
-// Quality Hold Reason
-enum QualityHoldReason {
-    PENDING_TEST_RESULTS("Waiting for test results"),
-    EQUIPMENT_MALFUNCTION("Equipment malfunction"),
-    INSPECTOR_UNAVAILABLE("Inspector not available"),
-    SAMPLE_PREPARATION("Sample preparation required"),
-    CUSTOMER_REQUEST("Customer hold request"),
-    SUPPLIER_NOTIFICATION("Supplier notification required"),
-    DOCUMENTATION_MISSING("Missing documentation"),
-    CORRECTIVE_ACTION_PENDING("Pending corrective action");
-
-    private final String description;
-
-    QualityHoldReason(String description) {
-        this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-}
-
-// Quality Severity
-enum QualitySeverity {
-    LOW(1, "Minor issue, minimal impact"),
-    MEDIUM(2, "Moderate issue, some impact"),
-    HIGH(3, "Significant issue, major impact"),
-    CRITICAL(4, "Critical issue, severe impact");
-
-    private final int level;
-    private final String description;
-
-    QualitySeverity(int level, String description) {
-        this.level = level;
-        this.description = description;
-    }
-
-    public int getLevel() {
-        return level;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public boolean isHigherThan(QualitySeverity other) {
-        return this.level > other.level;
-    }
-}
+// Moved enums to separate files
 
 
 // Quality Quarantine Reason
@@ -110,33 +35,7 @@ enum QualityQuarantineStatus {
     ACTIVE, RELEASED, DISPOSED
 }
 
-// Quality Hold Status
-enum QualityHoldStatus {
-    ACTIVE, RELEASED
-}
-
-// Quality Hold Priority
-enum QualityHoldPriority {
-    LOW(1, "Low priority"),
-    MEDIUM(2, "Medium priority"),
-    HIGH(3, "High priority"),
-    CRITICAL(4, "Critical priority");
-
-    private final int level;
-    private final String description;
-
-    QualityHoldPriority(int level, String description) {
-        this.level = level;
-        this.description = description;
-    }
-
-    public int getLevel() { return level; }
-    public String getDescription() { return description; }
-    
-    public boolean isHigherThan(QualityHoldPriority other) {
-        return this.level > other.level;
-    }
-}
+// Moved to separate files
 
 // Quality Sampling Strategy
 enum QualitySamplingStrategy {

@@ -22,6 +22,10 @@ public interface LicensePlateRepository {
     List<LicensePlate> findByItem(SkuCode item);
     
     List<LicensePlate> findByParentLicensePlateId(LicensePlateId parentId);
+
+    default List<LicensePlate> findChildLicensePlates(LicensePlateId parentId) {
+        return findByParentLicensePlateId(parentId);
+    }
     
     List<LicensePlate> findAvailableForPicking();
     

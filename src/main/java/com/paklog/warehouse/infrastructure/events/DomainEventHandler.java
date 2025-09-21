@@ -1,6 +1,7 @@
 package com.paklog.warehouse.infrastructure.events;
 
 import com.paklog.warehouse.domain.shared.*;
+import com.paklog.warehouse.domain.work.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;

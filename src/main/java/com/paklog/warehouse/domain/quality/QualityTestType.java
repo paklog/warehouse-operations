@@ -1,6 +1,7 @@
 package com.paklog.warehouse.domain.quality;
 
 public enum QualityTestType {
+    VISUAL("Visual test", false, true),
     VISUAL_INSPECTION("Visual inspection", false, true),
     MEASUREMENT("Numeric measurement", true, false),
     WEIGHT("Weight measurement", true, false),

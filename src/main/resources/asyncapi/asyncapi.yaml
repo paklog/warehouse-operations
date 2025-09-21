@@ -164,6 +164,34 @@ channels:
       operationId: publishLicensePlateNestingChanged
       message:
         $ref: '#/components/messages/LicensePlateNestingChangedEventMessage'
+  order-assigned-to-slot:
+    description: Events emitted when an order is assigned to a put wall slot
+    publish:
+      summary: Order slot assignment events
+      operationId: publishOrderAssignedToSlot
+      message:
+        $ref: '#/components/messages/OrderAssignedToSlotEventMessage'
+  item-placed-in-slot:
+    description: Events emitted when an item is placed in a put wall slot
+    publish:
+      summary: Item placement events
+      operationId: publishItemPlacedInSlot
+      message:
+        $ref: '#/components/messages/ItemPlacedInSlotEventMessage'
+  order-consolidated-in-slot:
+    description: Events emitted when an order is fully consolidated in a put wall slot
+    publish:
+      summary: Order consolidation events
+      operationId: publishOrderConsolidatedInSlot
+      message:
+        $ref: '#/components/messages/OrderConsolidatedInSlotEventMessage'
+  slot-released:
+    description: Events emitted when a put wall slot is released after packing
+    publish:
+      summary: Slot release events
+      operationId: publishSlotReleased
+      message:
+        $ref: '#/components/messages/SlotReleasedEventMessage'
 components:
   messages:
     WorkAssignedEventMessage:
@@ -376,6 +404,46 @@ components:
             properties:
               payload:
                 $ref: '#/components/schemas/LicensePlateNestingChangedPayload'
+    OrderAssignedToSlotEventMessage:
+      name: OrderAssignedToSlotEvent
+      title: Order Assigned to Slot Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/OrderAssignedToSlotPayload'
+    ItemPlacedInSlotEventMessage:
+      name: ItemPlacedInSlotEvent
+      title: Item Placed in Slot Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/ItemPlacedInSlotPayload'
+    OrderConsolidatedInSlotEventMessage:
+      name: OrderConsolidatedInSlotEvent
+      title: Order Consolidated in Slot Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/OrderConsolidatedInSlotPayload'
+    SlotReleasedEventMessage:
+      name: SlotReleasedEvent
+      title: Slot Released Event
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/DomainEventEnvelope'
+          - type: object
+            properties:
+              payload:
+                $ref: '#/components/schemas/SlotReleasedPayload'
   schemas:
     DomainEventEnvelope:
       type: object
@@ -806,3 +874,85 @@ components:
         - CONTAINER
         - QUALITY
         - RETURN
+    # Put Wall Event Payloads
+    OrderAssignedToSlotPayload:
+      type: object
+      required:
+        - putWallId
+        - slotId
+        - orderId
+        - requiredItems
+      properties:
+        putWallId:
+          $ref: '#/components/schemas/PutWallIdentifier'
+        slotId:
+          $ref: '#/components/schemas/PutWallSlotIdentifier'
+        orderId:
+          $ref: '#/components/schemas/OrderIdentifier'
+        requiredItems:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/QuantityValue'
+          description: Required items for the order (SKU -> quantity)
+    ItemPlacedInSlotPayload:
+      type: object
+      required:
+        - putWallId
+        - slotId
+        - orderId
+        - skuCode
+        - quantity
+      properties:
+        putWallId:
+          $ref: '#/components/schemas/PutWallIdentifier'
+        slotId:
+          $ref: '#/components/schemas/PutWallSlotIdentifier'
+        orderId:
+          $ref: '#/components/schemas/OrderIdentifier'
+        skuCode:
+          $ref: '#/components/schemas/SkuCodeValue'
+        quantity:
+          $ref: '#/components/schemas/QuantityValue'
+    OrderConsolidatedInSlotPayload:
+      type: object
+      required:
+        - putWallId
+        - slotId
+        - orderId
+      properties:
+        putWallId:
+          $ref: '#/components/schemas/PutWallIdentifier'
+        slotId:
+          $ref: '#/components/schemas/PutWallSlotIdentifier'
+        orderId:
+          $ref: '#/components/schemas/OrderIdentifier'
+    SlotReleasedPayload:
+      type: object
+      required:
+        - putWallId
+        - slotId
+        - releasedOrderId
+      properties:
+        putWallId:
+          $ref: '#/components/schemas/PutWallIdentifier'
+        slotId:
+          $ref: '#/components/schemas/PutWallSlotIdentifier'
+        releasedOrderId:
+          $ref: '#/components/schemas/OrderIdentifier'
+    PutWallIdentifier:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: string
+          format: uuid
+          description: Put wall UUID value
+    PutWallSlotIdentifier:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: string
+          description: Put wall slot identifier value

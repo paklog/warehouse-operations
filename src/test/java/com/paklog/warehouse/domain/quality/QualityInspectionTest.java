@@ -90,7 +90,7 @@ class QualityInspectionTest {
         QualityStepTemplate stepTemplate = new QualityStepTemplate(
             1, "Weight Check", "Check weight measurement",
             QualityTestType.WEIGHT, true,
-            "100", new QualityToleranceRange("95", "105", 5.0), "g"
+            "100", new QualityToleranceRange(95.0, 105.0, "g"), "g"
         );
         
         inspection.addStep(stepTemplate);
