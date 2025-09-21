@@ -9,10 +9,10 @@ import com.paklog.warehouse.domain.work.WorkStatus;
 
 import java.util.UUID;
 import com.paklog.warehouse.domain.work.WorkType;
+import com.paklog.warehouse.test.WebLayerTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(MobileWorkController.class)
+@WebLayerTest(controllers = MobileWorkController.class)
 class MobileWorkControllerTest {
 
     @Autowired
@@ -68,7 +68,7 @@ class MobileWorkControllerTest {
         when(mobileWorkflowService.getAssignedWork(workerId)).thenReturn(assignedWork);
 
         // Act & Assert
-        mockMvc.perform(get("/api/mobile/work/assigned/{workerId}", workerId))
+        mockMvc.perform(get("/api/v1/mobile/work/assigned/{workerId}", workerId))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$").isArray())
@@ -86,7 +86,7 @@ class MobileWorkControllerTest {
             .thenReturn(availableWork);
 
         // Act & Assert
-        mockMvc.perform(get("/api/mobile/work/available/{workerId}", workerId)
+        mockMvc.perform(get("/api/v1/mobile/work/available/{workerId}", workerId)
                 .param("workType", "PICK")
                 .param("limit", "10"))
             .andExpect(status().isOk())
@@ -104,9 +104,13 @@ class MobileWorkControllerTest {
         when(mobileWorkflowService.startWork(eq(workId), eq(workerId)))
             .thenReturn(testWorkDetail);
 
+        MobileWorkController.WorkStatusUpdateRequest request = 
+            new MobileWorkController.WorkStatusUpdateRequest("IN_PROGRESS", workerId, null);
+
         // Act & Assert
-        mockMvc.perform(post("/api/mobile/work/{workId}/start", workId)
-                .param("workerId", workerId))
+        mockMvc.perform(patch("/api/v1/mobile/work/{workId}", workId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.workId").value(workId))
@@ -123,7 +127,7 @@ class MobileWorkControllerTest {
             .thenReturn(testWorkDetail);
 
         // Act & Assert
-        mockMvc.perform(get("/api/mobile/work/{workId}/details", workId)
+        mockMvc.perform(get("/api/v1/mobile/work/{workId}", workId)
                 .param("workerId", workerId))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -147,7 +151,7 @@ class MobileWorkControllerTest {
             .thenReturn(completionResult);
 
         // Act & Assert
-        mockMvc.perform(post("/api/mobile/work/{workId}/steps/{stepNumber}/complete", workId, stepNumber)
+        mockMvc.perform(patch("/api/v1/mobile/work/{workId}/steps/{stepNumber}", workId, stepNumber)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
@@ -168,9 +172,13 @@ class MobileWorkControllerTest {
         when(mobileWorkflowService.completeWork(eq(workId), eq(workerId)))
             .thenReturn(completionResult);
 
+        MobileWorkController.WorkStatusUpdateRequest request = 
+            new MobileWorkController.WorkStatusUpdateRequest("COMPLETED", workerId, null);
+
         // Act & Assert
-        mockMvc.perform(post("/api/mobile/work/{workId}/complete", workId)
-                .param("workerId", workerId))
+        mockMvc.perform(patch("/api/v1/mobile/work/{workId}", workId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.success").value(true))
@@ -184,10 +192,13 @@ class MobileWorkControllerTest {
         String workerId = "WORKER-001";
         String reason = "Equipment failure";
 
+        MobileWorkController.WorkStatusUpdateRequest request = 
+            new MobileWorkController.WorkStatusUpdateRequest("SUSPENDED", workerId, reason);
+
         // Act & Assert
-        mockMvc.perform(post("/api/mobile/work/{workId}/suspend", workId)
-                .param("workerId", workerId)
-                .param("reason", reason))
+        mockMvc.perform(patch("/api/v1/mobile/work/{workId}", workId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk());
     }
 
@@ -203,7 +214,7 @@ class MobileWorkControllerTest {
         when(mobileWorkflowService.processScan(any())).thenReturn(scanResult);
 
         // Act & Assert
-        mockMvc.perform(post("/api/mobile/work/scan")
+        mockMvc.perform(post("/api/v1/mobile/work/scans")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(scanRequest)))
             .andExpect(status().isOk())
@@ -224,7 +235,7 @@ class MobileWorkControllerTest {
         when(mobileWorkflowService.validateLocation(any())).thenReturn(validationResult);
 
         // Act & Assert
-        mockMvc.perform(post("/api/mobile/work/validate-location")
+        mockMvc.perform(post("/api/v1/mobile/work/location-validations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(validationRequest)))
             .andExpect(status().isOk())
@@ -247,7 +258,7 @@ class MobileWorkControllerTest {
         when(mobileWorkflowService.getWorkerMetrics(workerId, period)).thenReturn(metrics);
 
         // Act & Assert
-        mockMvc.perform(get("/api/mobile/work/metrics/{workerId}", workerId)
+        mockMvc.perform(get("/api/v1/mobile/work/workers/{workerId}/metrics", workerId)
                 .param("period", period))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -270,7 +281,7 @@ class MobileWorkControllerTest {
         when(mobileWorkflowService.startBatchPick(workerId, maxItems)).thenReturn(batchPick);
 
         // Act & Assert
-        mockMvc.perform(post("/api/mobile/work/batch-pick")
+        mockMvc.perform(post("/api/v1/mobile/work/batch-picks")
                 .param("workerId", workerId)
                 .param("maxItems", String.valueOf(maxItems)))
             .andExpect(status().isOk())
@@ -287,7 +298,7 @@ class MobileWorkControllerTest {
         String reason = "Safety hazard";
 
         // Act & Assert
-        mockMvc.perform(post("/api/mobile/work/emergency-stop")
+        mockMvc.perform(post("/api/v1/mobile/work/emergency-alerts")
                 .param("workerId", workerId)
                 .param("reason", reason))
             .andExpect(status().isOk());

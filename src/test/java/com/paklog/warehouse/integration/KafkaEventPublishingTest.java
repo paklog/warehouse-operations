@@ -1,5 +1,6 @@
 package com.paklog.warehouse.integration;
 
+import com.paklog.warehouse.config.MessagingConfig;
 import com.paklog.warehouse.infrastructure.messaging.KafkaEventPublisher;
 import com.paklog.warehouse.infrastructure.messaging.OutboxEvent;
 import com.paklog.warehouse.infrastructure.messaging.OutboxRepository;
@@ -7,6 +8,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -18,12 +22,19 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @DirtiesContext
 @ActiveProfiles("test")
+@Import(MessagingConfig.class)
 class KafkaEventPublishingTest {
     @Autowired
     private KafkaEventPublisher kafkaEventPublisher;
 
     @Autowired
     private OutboxRepository outboxRepository;
+
+    @MockBean
+    private KafkaTemplate<String, String> kafkaTemplate;
+
+    @MockBean
+    private com.paklog.warehouse.application.mobile.MobileWorkflowService mobileWorkflowService;
 
     @BeforeEach
     void setUp() {

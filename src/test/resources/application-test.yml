@@ -1,9 +1,18 @@
 spring:
+  main:
+    allow-bean-definition-overriding: true
   data:
     mongodb:
-      # Use embedded MongoDB or testcontainers for testing
-      # This will use the default embedded MongoDB configuration
+      # Use embedded MongoDB for testing
+      uri: mongodb://localhost:0/warehouse-test
+      database: warehouse-test
       auto-index-creation: true
+  mongodb:
+    embedded:
+      version: 4.4.18
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
       
   # Application specific test properties
   application:

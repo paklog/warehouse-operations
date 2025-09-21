@@ -57,15 +57,27 @@ public class PickList extends AggregateRoot {
     }
 
     public void pickItem(SkuCode sku, Quantity quantity, BinLocation binLocation) {
+        Objects.requireNonNull(sku, "SKU cannot be null");
+        Objects.requireNonNull(quantity, "Quantity cannot be null");
+        Objects.requireNonNull(binLocation, "Bin location cannot be null");
+
         PickInstruction instruction = findInstruction(sku);
-        
-        if (instruction == null || instruction.getQuantity().getValue() != quantity.getValue()) {
+
+        if (instruction == null) {
             throw new IllegalArgumentException("Invalid pick instruction");
         }
-        
+
+        if (instruction.isCompleted()) {
+            throw new IllegalArgumentException("Pick instruction already completed");
+        }
+
+        if (instruction.getQuantity().getValue() != quantity.getValue()) {
+            throw new IllegalArgumentException("Invalid pick instruction");
+        }
+
         instruction.markCompleted();
         registerEvent(new ItemPickedEvent(this.id, sku, quantity, binLocation, this.pickerId));
-        
+
         if (areAllInstructionsCompleted()) {
             this.status = PickListStatus.COMPLETED;
             this.completedAt = Instant.now();

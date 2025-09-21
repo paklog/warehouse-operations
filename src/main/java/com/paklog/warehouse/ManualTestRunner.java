@@ -48,7 +48,7 @@ public class ManualTestRunner {
         WorkStep step2 = new WorkStep(2, WorkAction.PICK_ITEM, ValidationType.QUANTITY_RANGE, 
                                     "Pick item", new HashMap<>());
         
-        Work work = new Work(templateId, location, item, quantity, Arrays.asList(step1, step2));
+        Work work = new Work(templateId, WorkType.PICK, location, item, quantity, Arrays.asList(step1, step2));
         assert work != null : "Work should not be null";
         assert work.getWorkId() != null : "Work should have an ID";
         assert work.getStatus() == WorkStatus.CREATED : "Work should be in CREATED status";

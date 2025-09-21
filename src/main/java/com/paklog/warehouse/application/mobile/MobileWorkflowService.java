@@ -52,7 +52,7 @@ public class MobileWorkflowService {
     public List<MobileWorkSummaryDto> getAvailableWork(String workerId, WorkType workType, int limit) {
         logger.info("Getting available work for worker: {}, type: {}, limit: {}", workerId, workType, limit);
         
-        List<Work> availableWork = workRepository.findByStatus(WorkStatus.RELEASED);
+        List<Work> availableWork = workRepository.findAvailable(WorkStatus.RELEASED);
         if (workType != null) {
             // Filter by work type - since the repo doesn't have findByWorkTypeAndStatus
             // we filter in memory (could be optimized with additional repo method)
@@ -479,7 +479,7 @@ public class MobileWorkflowService {
     
     private WorkType determineWorkType(Work work) {
         // Since Work doesn't have WorkType in current domain, infer from template or default
-        return WorkType.PICK; // Default, could be enhanced later
+        return work.getWorkType();
     }
     
     private boolean isUrgentPriority(String priority) {

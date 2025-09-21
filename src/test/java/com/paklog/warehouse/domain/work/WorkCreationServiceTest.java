@@ -297,7 +297,7 @@ class WorkCreationServiceTest {
         when(existingWork.getLocation()).thenReturn(location);
         when(existingWork.getItem()).thenReturn(item);
         when(existingWork.isInProgress()).thenReturn(true);
-        when(existingWork.isAssigned()).thenReturn(false);
+        lenient().when(existingWork.isAssigned()).thenReturn(false);
         
         when(workRepository.findActiveWork())
             .thenReturn(Arrays.asList(existingWork));

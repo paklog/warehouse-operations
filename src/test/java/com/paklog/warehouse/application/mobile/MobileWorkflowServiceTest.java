@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -46,11 +47,11 @@ class MobileWorkflowServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new MobileWorkflowService(workRepository, barcodeScanProcessor, 
+        service = new MobileWorkflowService(workRepository, barcodeScanProcessor,
                                           locationDirectiveService, notificationService);
-        
-        testWorkId = WorkId.generate();
-        testWork = createTestWork(testWorkId, WorkStatus.ASSIGNED);
+
+        testWork = createTestWork(WorkStatus.ASSIGNED);
+        testWorkId = testWork.getWorkId();
     }
 
     @Test
@@ -59,19 +60,20 @@ class MobileWorkflowServiceTest {
         String workerId = "WORKER-001";
         List<Work> assignedWork = Arrays.asList(testWork);
         
-        when(workRepository.findByAssignedToAndStatusIn(eq(workerId), 
-            eq(Arrays.asList(WorkStatus.ASSIGNED, WorkStatus.IN_PROGRESS))))
+        when(workRepository.findByAssignedToAndStatus(eq(workerId), eq(WorkStatus.ASSIGNED)))
             .thenReturn(assignedWork);
+        when(workRepository.findByAssignedToAndStatus(eq(workerId), eq(WorkStatus.IN_PROGRESS)))
+            .thenReturn(new ArrayList<>());
 
         // Act
         List<MobileWorkSummaryDto> result = service.getAssignedWork(workerId);
 
         // Assert
         assertEquals(1, result.size());
-        assertEquals(testWorkId.getValue(), result.get(0).getWorkId());
+        assertEquals(testWorkId.getValue().toString(), result.get(0).getWorkId());
         assertEquals(workerId, result.get(0).getAssignedTo());
-        verify(workRepository).findByAssignedToAndStatusIn(workerId, 
-            Arrays.asList(WorkStatus.ASSIGNED, WorkStatus.IN_PROGRESS));
+        verify(workRepository).findByAssignedToAndStatus(workerId, WorkStatus.ASSIGNED);
+        verify(workRepository).findByAssignedToAndStatus(workerId, WorkStatus.IN_PROGRESS);
     }
 
     @Test
@@ -81,10 +83,10 @@ class MobileWorkflowServiceTest {
         WorkType workType = WorkType.PICK;
         int limit = 5;
         
-        Work availableWork = createTestWork(WorkId.generate(), WorkStatus.RELEASED);
+        Work availableWork = createTestWork(WorkStatus.RELEASED);
         availableWork.assignTo(null); // Unassigned
         
-        when(workRepository.findByWorkTypeAndStatus(workType, WorkStatus.RELEASED))
+        when(workRepository.findAvailable(WorkStatus.RELEASED))
             .thenReturn(Arrays.asList(availableWork));
 
         // Act
@@ -93,7 +95,7 @@ class MobileWorkflowServiceTest {
         // Assert
         assertEquals(1, result.size());
         assertNull(result.get(0).getAssignedTo());
-        verify(workRepository).findByWorkTypeAndStatus(workType, WorkStatus.RELEASED);
+        verify(workRepository).findAvailable(WorkStatus.RELEASED);
     }
 
     @Test
@@ -110,7 +112,7 @@ class MobileWorkflowServiceTest {
 
         // Assert
         assertNotNull(result);
-        assertEquals(testWorkId.getValue(), result.getWorkId());
+        assertEquals(testWorkId.getValue().toString(), result.getWorkId());
         assertEquals(WorkStatus.IN_PROGRESS, result.getStatus());
         verify(workRepository).save(testWork);
         verify(notificationService).notifyWorkStarted(testWorkId.getValue(), workerId);
@@ -210,7 +212,7 @@ class MobileWorkflowServiceTest {
 
         // Assert
         assertTrue(result.isSuccess());
-        assertEquals(testWorkId.getValue(), result.getWorkId());
+        assertEquals(testWorkId.getValue().toString(), result.getWorkId());
         assertNotNull(result.getCompletedAt());
         verify(workRepository).save(testWork);
         verify(notificationService).notifyWorkCompleted(testWorkId.getValue(), workerId);
@@ -283,11 +285,11 @@ class MobileWorkflowServiceTest {
         int maxItems = 5;
         
         List<Work> availableWork = Arrays.asList(
-            createTestWork(WorkId.generate(), WorkStatus.RELEASED),
-            createTestWork(WorkId.generate(), WorkStatus.RELEASED)
+            createTestWork(WorkStatus.RELEASED),
+            createTestWork(WorkStatus.RELEASED)
         );
         
-        when(workRepository.findByWorkTypeAndStatus(WorkType.PICK, WorkStatus.RELEASED))
+        when(workRepository.findByStatus(WorkStatus.RELEASED))
             .thenReturn(availableWork);
         when(workRepository.save(any(Work.class))).thenReturn(availableWork.get(0));
 
@@ -313,7 +315,7 @@ class MobileWorkflowServiceTest {
         testWork.assignTo(workerId);
         testWork.start();
         
-        when(workRepository.findByAssignedToAndStatusIn(workerId, List.of(WorkStatus.IN_PROGRESS)))
+        when(workRepository.findByAssignedToAndStatus(workerId, WorkStatus.IN_PROGRESS))
             .thenReturn(activeWork);
         when(workRepository.save(any(Work.class))).thenReturn(testWork);
 
@@ -325,7 +327,7 @@ class MobileWorkflowServiceTest {
         verify(notificationService).notifyEmergencyStop(workerId, reason);
     }
 
-    private Work createTestWork(WorkId workId, WorkStatus status) {
+    private Work createTestWork(WorkStatus status) {
         BinLocation location = new BinLocation("A", "01", "1");
         SkuCode item = new SkuCode("SKU001");
         Quantity quantity = new Quantity(10);
@@ -338,9 +340,13 @@ class MobileWorkflowServiceTest {
                         "Pick 10 units of SKU001", Map.of("quantity", 10))
         );
         
-        Work work = new Work(WorkTemplateId.generate(), location, item, quantity, steps);
+        Work work = new Work(WorkTemplateId.generate(), WorkType.PICK, location, item, quantity, steps);
         
         // Set status appropriately
+        if (status == WorkStatus.RELEASED) {
+            work.release();
+        }
+
         if (status == WorkStatus.ASSIGNED) {
             work.assignTo("WORKER-001");
         } else if (status == WorkStatus.IN_PROGRESS) {

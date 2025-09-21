@@ -16,7 +16,8 @@
       "Read(//usr/libexec/**)",
       "Bash(brew list:*)",
       "Bash(export PATH=/opt/homebrew/opt/openjdk@21/bin:$PATH)",
-      "Bash(export:*)"
+      "Bash(export:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

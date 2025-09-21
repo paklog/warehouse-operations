@@ -15,7 +15,15 @@ public class OrderId {
     }
 
     public static OrderId of(String value) {
-        return new OrderId(UUID.fromString(value));
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("Order ID value cannot be null or blank");
+        }
+
+        try {
+            return new OrderId(UUID.fromString(value));
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Invalid Order ID format", ex);
+        }
     }
 
     public UUID getValue() {

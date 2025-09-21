@@ -72,9 +72,20 @@ public class QualityCorrectiveAction extends AggregateRoot {
     }
 
     public void completeStep(int stepNumber, String completedBy, String notes) {
+        if (this.status == QualityCorrectiveActionStatus.CANCELLED) {
+            throw new IllegalStateException("Cannot complete step - action is cancelled");
+        }
+
         QualityCorrectiveActionStep step = findStep(stepNumber);
         if (step.isCompleted()) {
             throw new IllegalStateException("Step " + stepNumber + " is already completed");
+        }
+
+        if (this.status == QualityCorrectiveActionStatus.ASSIGNED) {
+            // Automatically transition to in-progress when the first step is worked on
+            startImplementation();
+        } else if (this.status != QualityCorrectiveActionStatus.IN_PROGRESS) {
+            throw new IllegalStateException("Cannot complete step - status is " + status);
         }
 
         step.complete(completedBy, notes);

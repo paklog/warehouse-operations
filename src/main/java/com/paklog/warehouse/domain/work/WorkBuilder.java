@@ -56,7 +56,7 @@ public class WorkBuilder {
             throw new IllegalStateException("Template must have at least one step");
         }
 
-        Work work = new Work(template.getId(), location, item, quantity, steps, 
+        Work work = new Work(template.getId(), template.getWorkType(), location, item, quantity, steps, 
                            template.isQualityInspectionRequired(), 
                            template.getRequiredInspectionType());
 

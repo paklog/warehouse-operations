@@ -36,17 +36,28 @@ class BarcodeScanValidationTest {
 
     @Test
     void testSuccessfulItemPick() {
+        // Create a real pick instruction instead of a mock
+        PickInstruction realInstruction = new PickInstruction(
+            SkuCode.of("SKU-001"),
+            Quantity.of(5),
+            BinLocation.of("A1-B2-C3")
+        );
+
+        // Create a new pick list and add the real instruction
+        PickList newPickList = new PickList(OrderId.generate());
+        newPickList.addInstruction(realInstruction);
+
         // Attempt to pick a valid item
-        assertDoesNotThrow(() -> 
-            pickList.pickItem(
-                SkuCode.of("SKU-001"), 
-                Quantity.of(5), 
+        assertDoesNotThrow(() ->
+            newPickList.pickItem(
+                SkuCode.of("SKU-001"),
+                Quantity.of(5),
                 BinLocation.of("A1-B2-C3")
             )
         );
-        
+
         // Verify the instruction is marked as completed
-        assertTrue(validInstruction.isCompleted());
+        assertTrue(realInstruction.isCompleted());
     }
 
     @Test
@@ -75,18 +86,29 @@ class BarcodeScanValidationTest {
 
     @Test
     void testPickAlreadyCompletedInstruction() {
-        // First, complete the instruction
-        pickList.pickItem(
-            SkuCode.of("SKU-001"), 
-            Quantity.of(5), 
+        // Create a real pick instruction instead of a mock
+        PickInstruction realInstruction = new PickInstruction(
+            SkuCode.of("SKU-001"),
+            Quantity.of(5),
             BinLocation.of("A1-B2-C3")
         );
-        
+
+        // Create a new pick list and add the real instruction
+        PickList newPickList = new PickList(OrderId.generate());
+        newPickList.addInstruction(realInstruction);
+
+        // First, complete the instruction
+        newPickList.pickItem(
+            SkuCode.of("SKU-001"),
+            Quantity.of(5),
+            BinLocation.of("A1-B2-C3")
+        );
+
         // Attempt to pick the same instruction again
-        assertThrows(IllegalArgumentException.class, () -> 
-            pickList.pickItem(
-                SkuCode.of("SKU-001"), 
-                Quantity.of(5), 
+        assertThrows(IllegalArgumentException.class, () ->
+            newPickList.pickItem(
+                SkuCode.of("SKU-001"),
+                Quantity.of(5),
                 BinLocation.of("A1-B2-C3")
             )
         );
@@ -94,21 +116,32 @@ class BarcodeScanValidationTest {
 
     @Test
     void testPickListCompletionStatus() {
-        // Pick the instruction
-        pickList.pickItem(
-            SkuCode.of("SKU-001"), 
-            Quantity.of(5), 
+        // Create a real pick instruction instead of a mock
+        PickInstruction realInstruction = new PickInstruction(
+            SkuCode.of("SKU-001"),
+            Quantity.of(5),
             BinLocation.of("A1-B2-C3")
         );
-        
+
+        // Create a new pick list and add the real instruction
+        PickList newPickList = new PickList(OrderId.generate());
+        newPickList.addInstruction(realInstruction);
+
+        // Pick the instruction
+        newPickList.pickItem(
+            SkuCode.of("SKU-001"),
+            Quantity.of(5),
+            BinLocation.of("A1-B2-C3")
+        );
+
         // Verify the pick list status is completed
-        assertEquals(PickListStatus.COMPLETED, pickList.getStatus());
+        assertEquals(PickListStatus.COMPLETED, newPickList.getStatus());
     }
 
     @Test
     void testNullInputValidation() {
-        // Test null inputs
-        assertThrows(NullPointerException.class, () -> 
+        // Test null inputs - should throw IllegalArgumentException due to our validation
+        assertThrows(NullPointerException.class, () ->
             pickList.pickItem(null, null, null)
         );
     }

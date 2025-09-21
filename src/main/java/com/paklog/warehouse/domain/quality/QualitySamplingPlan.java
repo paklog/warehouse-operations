@@ -28,7 +28,7 @@ public class QualitySamplingPlan {
         this.description = description;
         this.applicableItem = applicableItem; // null means applies to all items
         this.strategy = Objects.requireNonNull(strategy, "Strategy cannot be null");
-        this.sampleSize = validateSampleSize(sampleSize);
+        this.sampleSize = validateSampleSize(strategy, sampleSize);
         this.acceptanceQualityLevel = validateAQL(acceptanceQualityLevel);
         this.requiredTests = Objects.requireNonNull(requiredTests, "Required tests cannot be null");
         this.active = true;
@@ -76,10 +76,18 @@ public class QualitySamplingPlan {
         return 200;
     }
 
-    private int validateSampleSize(int size) {
-        if (size <= 0) {
-            throw new IllegalArgumentException("Sample size must be positive");
+    private int validateSampleSize(QualitySamplingStrategy strategy, int size) {
+        if (strategy == QualitySamplingStrategy.FIXED_SIZE || strategy == QualitySamplingStrategy.PERCENTAGE) {
+            if (size <= 0) {
+                throw new IllegalArgumentException("Sample size must be positive");
+            }
+            return size;
         }
+
+        if (size < 0) {
+            throw new IllegalArgumentException("Sample size cannot be negative");
+        }
+
         return size;
     }
 

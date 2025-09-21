@@ -17,6 +17,7 @@ import java.util.UUID;
 public class Work extends AggregateRoot {
     private final WorkId workId;
     private final WorkTemplateId templateId;
+    private final WorkType workType;
     private WorkStatus status;
     private final BinLocation location;
     private final SkuCode item;
@@ -34,16 +35,17 @@ public class Work extends AggregateRoot {
     private QualityInspectionId qualityInspectionId;
     private boolean qualityApproved;
 
-    public Work(WorkTemplateId templateId, BinLocation location, SkuCode item, 
+    public Work(WorkTemplateId templateId, WorkType workType, BinLocation location, SkuCode item, 
                Quantity quantity, List<WorkStep> steps) {
-        this(templateId, location, item, quantity, steps, false, null);
+        this(templateId, workType, location, item, quantity, steps, false, null);
     }
 
-    public Work(WorkTemplateId templateId, BinLocation location, SkuCode item, 
+    public Work(WorkTemplateId templateId, WorkType workType, BinLocation location, SkuCode item, 
                Quantity quantity, List<WorkStep> steps, boolean qualityInspectionRequired,
                QualityInspectionType requiredInspectionType) {
         this.workId = WorkId.generate();
         this.templateId = Objects.requireNonNull(templateId, "Template ID cannot be null");
+        this.workType = Objects.requireNonNull(workType, "Work Type cannot be null");
         this.location = Objects.requireNonNull(location, "Location cannot be null");
         this.item = Objects.requireNonNull(item, "Item cannot be null");
         this.quantity = Objects.requireNonNull(quantity, "Quantity cannot be null");
@@ -62,14 +64,29 @@ public class Work extends AggregateRoot {
     }
 
     public void assignTo(String workerId) {
-        if (status != WorkStatus.CREATED && status != WorkStatus.RELEASED) {
+        if (workerId == null || workerId.isBlank()) {
+            if (status == WorkStatus.ASSIGNED) {
+                this.assignedTo = null;
+                this.status = WorkStatus.RELEASED;
+                return;
+            }
+
+            if (status == WorkStatus.CREATED || status == WorkStatus.RELEASED) {
+                this.assignedTo = null;
+                return;
+            }
+
+            throw new IllegalStateException("Cannot unassign work in status: " + status);
+        }
+
+        if (status != WorkStatus.CREATED && status != WorkStatus.RELEASED && status != WorkStatus.ASSIGNED) {
             throw new IllegalStateException("Cannot assign work in status: " + status);
         }
-        
-        this.assignedTo = Objects.requireNonNull(workerId, "Worker ID cannot be null");
+
+        this.assignedTo = workerId;
         this.status = WorkStatus.ASSIGNED;
         this.assignedAt = Instant.now();
-        
+
         registerEvent(new WorkAssignedEvent(this.workId.getValue(), this.assignedTo));
     }
 
@@ -172,6 +189,10 @@ public class Work extends AggregateRoot {
 
     public WorkTemplateId getTemplateId() {
         return templateId;
+    }
+
+    public WorkType getWorkType() {
+        return workType;
     }
 
     public WorkStatus getStatus() {

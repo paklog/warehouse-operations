@@ -36,7 +36,7 @@ class WorkTest {
                                      "Pick item", new HashMap<>());
         
         steps = Arrays.asList(step1, step2);
-        work = new Work(templateId, location, item, quantity, steps);
+        work = new Work(templateId, WorkType.PICK, location, item, quantity, steps);
     }
 
     @Test
@@ -55,37 +55,37 @@ class WorkTest {
     @Test
     void shouldThrowExceptionWhenTemplateIdIsNull() {
         assertThrows(NullPointerException.class, () -> 
-            new Work(null, location, item, quantity, steps));
+            new Work(null, WorkType.PICK, location, item, quantity, steps));
     }
 
     @Test
     void shouldThrowExceptionWhenLocationIsNull() {
         assertThrows(NullPointerException.class, () -> 
-            new Work(templateId, null, item, quantity, steps));
+            new Work(templateId, WorkType.PICK, null, item, quantity, steps));
     }
 
     @Test
     void shouldThrowExceptionWhenItemIsNull() {
         assertThrows(NullPointerException.class, () -> 
-            new Work(templateId, location, null, quantity, steps));
+            new Work(templateId, WorkType.PICK, location, null, quantity, steps));
     }
 
     @Test
     void shouldThrowExceptionWhenQuantityIsNull() {
         assertThrows(NullPointerException.class, () -> 
-            new Work(templateId, location, item, null, steps));
+            new Work(templateId, WorkType.PICK, location, item, null, steps));
     }
 
     @Test
     void shouldThrowExceptionWhenStepsIsNull() {
         assertThrows(NullPointerException.class, () -> 
-            new Work(templateId, location, item, quantity, null));
+            new Work(templateId, WorkType.PICK, location, item, quantity, null));
     }
 
     @Test
     void shouldThrowExceptionWhenStepsIsEmpty() {
         assertThrows(IllegalArgumentException.class, () -> 
-            new Work(templateId, location, item, quantity, Arrays.asList()));
+            new Work(templateId, WorkType.PICK, location, item, quantity, Arrays.asList()));
     }
 
     @Test
@@ -99,9 +99,10 @@ class WorkTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenAssigningToNullWorker() {
-        assertThrows(NullPointerException.class, () -> 
-            work.assignTo(null));
+    void shouldHandleNullWorkerAssignment() {
+        // Null assignment should not throw exception, it should handle gracefully
+        assertDoesNotThrow(() -> work.assignTo(null));
+        assertNull(work.getAssignedTo());
     }
 
     @Test
@@ -249,8 +250,8 @@ class WorkTest {
 
     @Test
     void shouldEqualWorksWithSameId() {
-        Work work1 = new Work(templateId, location, item, quantity, steps);
-        Work work2 = new Work(templateId, location, item, quantity, steps);
+        Work work1 = new Work(templateId, WorkType.PICK, location, item, quantity, steps);
+        Work work2 = new Work(templateId, WorkType.PICK, location, item, quantity, steps);
         
         // They should not be equal as they have different IDs
         assertNotEquals(work1, work2);

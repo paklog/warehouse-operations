@@ -59,6 +59,11 @@ public class ServiceConfig {
     }
 
     @Bean
+    public PickRouteOptimizer pickRouteOptimizer() {
+        return new PickRouteOptimizer();
+    }
+
+    @Bean
     public PackagingDomainService packagingDomainService() {
         return new PackagingDomainService();
     }
