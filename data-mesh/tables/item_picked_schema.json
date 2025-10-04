@@ -1,0 +1,39 @@
+{
+  "schemaName": "item_picked",
+  "dimensionFieldSpecs": [
+    {
+      "name": "pickTransactionId",
+      "dataType": "STRING"
+    },
+    {
+      "name": "pickListId",
+      "dataType": "STRING"
+    },
+    {
+      "name": "sku",
+      "dataType": "STRING"
+    },
+    {
+      "name": "pickerId",
+      "dataType": "STRING"
+    },
+    {
+      "name": "toteId",
+      "dataType": "STRING"
+    }
+  ],
+  "metricFieldSpecs": [
+    {
+      "name": "quantity",
+      "dataType": "INT"
+    }
+  ],
+  "dateTimeFieldSpecs": [
+    {
+      "name": "pickedTimestamp",
+      "dataType": "TIMESTAMP",
+      "format": "1:MILLISECONDS:EPOCH",
+      "granularity": "1:MILLISECONDS"
+    }
+  ]
+}

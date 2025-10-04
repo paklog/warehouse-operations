@@ -1,0 +1,44 @@
+datacontract: 0.9.3
+info:
+  title: Warehouse Package Packed
+  version: 1.0.0
+  owner: warehouse-data-team
+  description: "Signals that an order has been fully picked, packed, and is ready for shipment. This is a high-value event representing a completed unit of work."
+models:
+  package_packed:
+    type: table
+    fields:
+      packageId:
+        type: string
+        required: true
+        description: "The unique identifier for the package, e.g., a tracking number."
+      orderId:
+        type: string
+        required: true
+        description: "The identifier for the customer order this package belongs to."
+      packedTimestamp:
+        type: timestamp_tz
+        required: true
+        description: "The exact time when the package was sealed."
+      itemCount:
+        type: integer
+        required: true
+        minimum: 1
+        description: "Total number of distinct items in the package."
+      shippedFromLocation:
+        type: string
+        description: "Identifier for the warehouse or facility."
+quality:
+  specification:
+    - type: completeness
+      model: package_packed
+      field: packageId
+    - type: uniqueness
+      model: package_packed
+      field: packageId
+    - type: freshness
+      value: "10 minutes"
+      description: "Data should be available within 10 minutes of the physical packing event."
+servicelevels:
+  availability:
+    - 99.9%

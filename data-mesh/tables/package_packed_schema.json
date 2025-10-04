@@ -1,0 +1,31 @@
+{
+  "schemaName": "package_packed",
+  "dimensionFieldSpecs": [
+    {
+      "name": "packageId",
+      "dataType": "STRING"
+    },
+    {
+      "name": "orderId",
+      "dataType": "STRING"
+    },
+    {
+      "name": "shippedFromLocation",
+      "dataType": "STRING"
+    }
+  ],
+  "metricFieldSpecs": [
+    {
+      "name": "itemCount",
+      "dataType": "INT"
+    }
+  ],
+  "dateTimeFieldSpecs": [
+    {
+      "name": "packedTimestamp",
+      "dataType": "TIMESTAMP",
+      "format": "1:MILLISECONDS:EPOCH",
+      "granularity": "1:MILLISECONDS"
+    }
+  ]
+}

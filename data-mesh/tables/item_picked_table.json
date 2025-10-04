@@ -1,0 +1,32 @@
+{
+  "tableName": "item_picked",
+  "tableType": "REALTIME",
+  "segmentsConfig": {
+    "timeColumnName": "pickedTimestamp",
+    "timeType": "MILLISECONDS",
+    "retentionTimeUnit": "DAYS",
+    "retentionTimeValue": "30"
+  },
+  "tenants": {},
+  "tableIndexConfig": {
+    "loadMode": "MMAP",
+    "invertedIndexColumns": [
+        "sku",
+        "pickerId",
+        "toteId"
+    ]
+  },
+  "ingestionConfig": {
+    "streamIngestionConfig": {
+      "streamType": "kafka",
+      "streamConfig": {
+        "stream.kafka.topic.name": "dataproduct.warehouse.item-picked.v1",
+        "stream.kafka.broker.list": "kafka.bootstrap.servers:9092",
+        "stream.kafka.consumer.type": "lowlevel",
+        "stream.kafka.consumer.prop.auto.offset.reset": "smallest",
+        "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.stream.kafka.format.json.JsonMessageDecoder"
+      }
+    }
+  },
+  "metadata": {}
+}

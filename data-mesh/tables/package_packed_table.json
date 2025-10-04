@@ -1,0 +1,31 @@
+{
+  "tableName": "package_packed",
+  "tableType": "REALTIME",
+  "segmentsConfig": {
+    "timeColumnName": "packedTimestamp",
+    "timeType": "MILLISECONDS",
+    "retentionTimeUnit": "DAYS",
+    "retentionTimeValue": "90"
+  },
+  "tenants": {},
+  "tableIndexConfig": {
+    "loadMode": "MMAP",
+    "invertedIndexColumns": [
+        "orderId",
+        "shippedFromLocation"
+    ]
+  },
+  "ingestionConfig": {
+    "streamIngestionConfig": {
+      "streamType": "kafka",
+      "streamConfig": {
+        "stream.kafka.topic.name": "dataproduct.warehouse.package-packed.v1",
+        "stream.kafka.broker.list": "kafka.bootstrap.servers:9092",
+        "stream.kafka.consumer.type": "lowlevel",
+        "stream.kafka.consumer.prop.auto.offset.reset": "smallest",
+        "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.stream.kafka.format.json.JsonMessageDecoder"
+      }
+    }
+  },
+  "metadata": {}
+}

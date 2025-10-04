@@ -1,0 +1,47 @@
+datacontract: 0.9.3
+info:
+  title: Warehouse Item Picked
+  version: 1.0.0
+  owner: warehouse-data-team
+  description: "A real-time event that fires every time a picker scans an item and places it into a tote. Used for live inventory tracking and picker productivity analysis."
+models:
+  item_picked:
+    type: table
+    fields:
+      pickTransactionId:
+        type: string
+        required: true
+        unique: true
+        description: "A unique ID for this specific pick action."
+      pickListId:
+        type: string
+        required: true
+        description: "The picklist this pick belongs to."
+      sku:
+        type: string
+        required: true
+        description: "The SKU of the item that was picked."
+      quantity:
+        type: integer
+        required: true
+        minimum: 1
+      pickedTimestamp:
+        type: timestamp_tz
+        required: true
+      pickerId:
+        type: string
+        description: "The ID of the employee who performed the pick."
+      toteId:
+        type: string
+        required: true
+        description: "The ID of the tote the item was placed into."
+quality:
+  specification:
+    - type: completeness
+      model: item_picked
+      fields: [pickTransactionId, sku, quantity]
+servicelevels:
+  freshness:
+    - "30 seconds"
+  availability:
+    - 99.95%
