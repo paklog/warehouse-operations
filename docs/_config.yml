@@ -1,0 +1,38 @@
+title: Warehouse Operations Service Documentation
+description: Warehouse management for picking, packing, and logistics with DDD
+theme: jekyll-theme-cayman
+baseurl: "/warehouse-operations"
+url: "https://paklog.github.io"
+
+# Navigation
+navigation:
+  - title: Home
+    url: /
+  - title: Architecture
+    url: /architecture/
+  - title: Domain
+    url: /domain/
+  - title: API Documentation
+    url: /api/
+  - title: Operations
+    url: /operations/
+
+# GitHub
+github:
+  repository_url: https://github.com/paklog/warehouse-operations
+
+# Build settings
+markdown: kramdown
+plugins:
+  - jekyll-relative-links
+
+relative_links:
+  enabled: true
+  collections: false
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
